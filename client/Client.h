@@ -7,10 +7,9 @@
 
 
 class Client {
-    Client() {
-
-
-    }
+public:
+    Client();
+    // TODO read a wri
 };
 
 

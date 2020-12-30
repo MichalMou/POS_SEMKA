@@ -7,8 +7,8 @@
 
 
 class Server {
-
-
+public:
+    int server_zaloz(int port);
 };
 
 

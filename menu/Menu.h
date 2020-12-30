@@ -16,7 +16,7 @@ public:
     void vyber_cli_ser();
     void prihlasenie();
     void registracia();
-    void ClearScreen(){
+    static void ClearScreen(){
         cout << string( 100, '\n' );
     }
 private:

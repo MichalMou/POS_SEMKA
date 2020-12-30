@@ -46,16 +46,11 @@ void Menu::registracia() {
         cin >> heslo;
         cout << "Tvoj login je: " << login << " a tvoje heslo je: " << heslo << endl;
         cout << "Potvrdit ?" << endl;
-        cout << "0. nie" << endl;
-        cout << "1. ano" << endl;
+        cout << "0. nie, chcem zadat znova" << endl;
+        cout << "1. ano, pokracovat dalej" << endl;
         cin >> vstup;
-        if (vstup == 1) {
-            potvrdit = 1;
-        } else {
-            potvrdit = 0;
-        }
     }
-    while (potvrdit != 1);
+    while (vstup != 1 && vstup != 0);
     // TODO registracia
 
 }
@@ -63,6 +58,9 @@ void Menu::registracia() {
 void Menu::prihlasenie() {
     string login;
     int heslo;
+    do {
+
+    }
     cout << "Prihlasenie" << endl;
     cout << "Zadaj login:" << endl;
     cin >> login;
@@ -76,11 +74,15 @@ void Menu::prihlasenie() {
 }
 
 void Menu::vyber_cli_ser() {
-    cout << "===== Vitaj v database programe =====" << endl;
-    cout << "Chces byt:" << endl;
-    cout << "1. server" << endl;
-    cout << "2. klient" << endl;
-    cin >> vstup;
+    do {
+        ClearScreen();
+        cout << "===== Vitaj v database programe =====" << endl;
+        cout << "Chces byt:" << endl;
+        cout << "1. server" << endl;
+        cout << "2. klient" << endl;
+        cin >> vstup;
+    }
+    while (vstup != 1 && vstup != 2);
 
     switch(vstup)
     {
@@ -90,9 +92,6 @@ void Menu::vyber_cli_ser() {
         case 2:
             start_menu();
             break;
-        default:
-            cout << "Zadal si zly vstup, skus znova!" << endl;
-            cin >> vstup;
     };
 }
 
