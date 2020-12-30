@@ -7,8 +7,7 @@
 
 
 class Server {
-public:
-    Server() {};
+
 
 };
 

@@ -35,7 +35,6 @@ void Menu::start_menu() {
 }
 
 void Menu::registracia() {
-    // TODO prihlasenie
     string login;
     int heslo, potvrdit;
 
@@ -57,6 +56,7 @@ void Menu::registracia() {
         }
     }
     while (potvrdit != 1);
+    // TODO registracia
 
 }
 
@@ -72,5 +72,23 @@ void Menu::prihlasenie() {
 
     // TODO vytvor konto
 
+
+}
+
+void Menu::vyber_cli_ser() {
+    int potvrdit = 0;
+    do {
+        cout << "===== Vitaj v database programe =====" << endl;
+        cout << "Chces byt:" << endl;
+        cout << "1. server" << endl;
+        cout << "2. klient" << endl;
+        cin >> vstup;
+        if(vstup == 1){
+            potvrdit = 1;
+        } else if(vstup == 2){
+            potvrdit = 2;
+        }
+    }
+    while (potvrdit != 1 || potvrdit != 2);
 
 }

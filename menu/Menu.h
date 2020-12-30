@@ -13,6 +13,7 @@ using namespace std;
 class Menu {
 public:
     void start_menu();
+    void vyber_cli_ser();
     void prihlasenie();
     void registracia();
     void ClearScreen(){
