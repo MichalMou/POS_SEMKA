@@ -4,7 +4,7 @@ using namespace std;
 
 int main() {
     Menu menu;
-    menu.start_menu();
+    menu.vyber_cli_ser();
 
 
 

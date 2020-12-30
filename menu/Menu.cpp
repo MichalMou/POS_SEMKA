@@ -76,19 +76,37 @@ void Menu::prihlasenie() {
 }
 
 void Menu::vyber_cli_ser() {
-    int potvrdit = 0;
-    do {
-        cout << "===== Vitaj v database programe =====" << endl;
-        cout << "Chces byt:" << endl;
-        cout << "1. server" << endl;
-        cout << "2. klient" << endl;
-        cin >> vstup;
-        if(vstup == 1){
-            potvrdit = 1;
-        } else if(vstup == 2){
-            potvrdit = 2;
-        }
-    }
-    while (potvrdit != 1 || potvrdit != 2);
+    cout << "===== Vitaj v database programe =====" << endl;
+    cout << "Chces byt:" << endl;
+    cout << "1. server" << endl;
+    cout << "2. klient" << endl;
+    cin >> vstup;
 
+    switch(vstup)
+    {
+        case 1:
+            // TODO zapnuty server
+            break;
+        case 2:
+            start_menu();
+            break;
+        default:
+            cout << "Zadal si zly vstup, skus znova!" << endl;
+            cin >> vstup;
+    };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
