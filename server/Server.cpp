@@ -1,89 +1,94 @@
-//
-// Created by Michal on 29. 12. 2020.
-//
-
 #include "Server.h"
 
-#include <stdio.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
+
 using namespace std;
 
 void* connectSpojenie(void* parameter) {
     Server* server  = reinterpret_cast<Server*>(parameter);
 
-    while(true) { // TODO podmienka zastavit server
-        int newSocketfd = accept(server->getSocketFD,(struct sockaddr * ) &cliAddr, &clientLength);
+    struct sockaddr_in kliAddr;
+    socklen_t klientLength = sizeof(kliAddr);
+    while(!server->getKoniec()) {
+        int newSocketfd = accept(server->getSocketFD(), (struct sockaddr*)&kliAddr, &klientLength);
         if (newSocketfd > 0) {
-            server->pridajClienta();
+            server->pridajKlienta(newSocketfd);
         }
     }
 }
 
+
 void* primacSprav(void* parameter) {
     Server *server = reinterpret_cast<Server *>(parameter);
+    char buffer[256];
+
     do {
-        // TODO foreach clienti, ak n je vacsie mam spravu
-        bzero(buffer, BUFF_N);
-        n = read(newSocketfd, buffer, BUFF_N - 1);
+        for(int newSock : *server->getKlienti()){
+            bzero(buffer, 256);
+            int n = read(newSock, buffer, 255);
+            if (n > 0){
+                cout << "mam spravu: " << buffer << endl;
+            }
+        }
     }
-    while (true); // TODO kim sa nezastavi server
+    while (!server->getKoniec());
 }
 
-int Server::getSocketFD(){
-    return socketFd;
-    //
-}
+Server::Server(int port) {
 
-void Server::pridajClienta(int client) {
-    // pridat do zoznamu cli (vector napr)
-}
-
-void Server::posliSpravu(int client) {
-    const char * msg = "Dostal som tvoju spravu %s\n";
-    n = write(newSocketfd,msg,strlen(msg) + 1);
-
-}
-
-
-int Server::Server(int port) { // TODO urobit z tohoto konstruktor
-#define BUFF_N 256
-    // atributy
-
-
-    int socketfd, newSocketfd;
-    socklen_t clientLength;
-    struct sockaddr_in cliAddr, servAddr;
-    int n;
-    char buffer[BUFF_N];
-
+    koniec = false;
+    struct sockaddr_in servAddr;
     bzero((char*)&servAddr,sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = INADDR_ANY;
     servAddr.sin_port = htons(port);
 
     socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(socketfd < 0){
-        perror("Chyba pri vytvarani socketu :");
-        return 1;
-    }
 
     if(bind(socketfd,(struct sockaddr*) &servAddr, sizeof(servAddr)) < 0){
         perror("Chyba pri bindovani socketu :");
-        return 2;
     }
+
     listen(socketfd, 5);
-    clientLength = sizeof(cliAddr);
 
-    // TODO spustit thready
 
-#undef BUFF_N
-    close(socketfd);
-    close(newSocketfd);
-    return 0;
+    pthread_t sprava;
+    pthread_create(&sprava, NULL, &primacSprav, this);
 }
+
+Server::~Server() {
+
+    for (int klient : *getKlienti()) {
+        close(klient);
+    }
+    delete klienti;
+    close(socketfd);
+    // TODO vymazat thread
+
+}
+
+
+
+int Server::getSocketFD() const{
+    return socketfd;
+}
+
+
+void Server::pridajKlienta(int klient) {
+    klienti->push_back(klient);
+}
+
+
+void Server::posliSpravu(int klientSock, char * sprava) {
+    int n = write(klientSock,sprava,strlen(sprava) + 1);
+}
+
+
+const vector<int> *Server::getKlienti() {
+    return this->klienti;
+}
+
+
+bool Server::getKoniec() const {
+    return this->koniec;
+}
+
