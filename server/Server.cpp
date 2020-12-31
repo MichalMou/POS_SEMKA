@@ -53,6 +53,10 @@ Server::Server(int port) {
 
     pthread_t sprava;
     pthread_create(&sprava, NULL, &primacSprav, this);
+
+
+
+
 }
 
 Server::~Server() {

@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <strings.h>
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <unistd.h>
 #include <netdb.h>
@@ -15,18 +15,16 @@ using namespace std;
 
 class Klient {
 public:
-    Klient(char *ipadressa, int port);
+    Klient(string ipadressa, int port);
     ~Klient();
     // TODO read a wri
-    void pridajServer(int server) ;
     void posliSpravu(char* sprava);
-
+    string precitaj(char* sprava);
     int getSocketFD() const;
     bool getKoniec() const;
 
 private:
     int socketfd;
-    int server;
     bool koniec;
 };
 

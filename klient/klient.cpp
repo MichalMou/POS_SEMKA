@@ -2,48 +2,34 @@
 
 using namespace std;
 
+#include <iostream>
+#include <string.h>
 
-void* connectSpojenie(void* parameter) {
-    Klient* klient  = reinterpret_cast<Klient*>(parameter);
-
-    struct sockaddr_in serAddr;
-    socklen_t serLength = sizeof(serAddr);
-    while(!klient->getKoniec()) {
-        int newSocketfd = accept(klient->getSocketFD(), (struct sockaddr*)&serAddr, &serLength);
-        if (newSocketfd > 0) {
-            klient->pridajServer();
-        }
-    }
-}
-
-
-void* primacSprav(void* parameter) {
-    Server *server = reinterpret_cast<Server *>(parameter);
+void* primiSpravu(void* parameter) {
+    Klient *klient = reinterpret_cast<Klient *>(parameter);
     char buffer[256];
-
     do {
-        for(int newSock : *server->getKlienti()){
             bzero(buffer, 256);
-            int n = read(newSock, buffer, 255);
+            int n = read(klient->getSocketFD(), buffer, 255);
             if (n > 0){
                 cout << "mam spravu: " << buffer << endl;
+                // TODO uloz spravu/buffer do spravy
+
             }
-        }
     }
-    while (!server->getKoniec());
+    while (!klient->getKoniec());
 }
 
-Klient::Klient(char *ipadressa, int port) {
 
-    int socketfd, n;
+Klient::Klient(string ipadressa, int port) {
     struct sockaddr_in servAddr;
     struct hostent* server;
     char buffer[256];
 
-    server = gethostbyname(argv[1]);
+    server = gethostbyname(ipadressa.c_str());
     if(server == NULL){
         fprintf(stderr, "Taky server nepoznam!");
-        return 2;
+        throw // TODO
     }
 
     bzero((char*)&servAddr, sizeof(servAddr));
@@ -53,50 +39,48 @@ Klient::Klient(char *ipadressa, int port) {
             (char*)&servAddr.sin_addr.s_addr,
             server->h_length
     );
-    servAddr.sin_port = htons(atoi(argv[2]));
+    servAddr.sin_port = htons(port);
 
     socketfd = socket(AF_INET,SOCK_STREAM, 0);
     if(socketfd < 0){
         perror("Nedokazalo sa vytvorit!");
-        return 3;
+        // TODO throw
     }
 
     if(connect(socketfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
         perror("Nedokazalo sa pripojit!");
-        return 4;
+        // TODO throw
     }
 
-    for(int i = 0; i < 5; i++){
-        printf( "Prosim zadajte %d spravu pre server:", i+1);
-        bzero(buffer, 256);
-        fgets(buffer, 255, stdin);
-    }
-
-    n = write(socketfd, buffer, strlen(buffer));
-    if(n < 0) {
-        perror("Nepodarilo sa ulozit informaciu do socketu!");
-        return 5;
-    }
-
-    bzero(buffer, 256);
-    n = read(socketfd, buffer, 256);
-    if(n < 0) {
-        perror("Neprecital som spravu!");
-        return 6;
-    }
-
-    printf("%s\n", buffer);
+    pthread_t sprava;
+    pthread_create(&sprava, NULL, &primiSpravu, this);
 }
 
 Klient::~Klient() {
-
+ //TODO
 }
 
-void Klient::pridajServer(int server) {
 
-}
 
 void Klient::posliSpravu(char *sprava) {
-
+    write(this->getSocketFD(), sprava, strlen(sprava) + 1);
 }
 
+string Klient::precitaj(char *sprava) { //TODO odpoved na sprava, resposne je string
+
+    write(this->getSocketFD(), sprava, strlen(sprava) + 1);
+    while () {
+        // prehladat pole a najst spravnu response
+        return response;
+    }
+}
+
+
+/*
+ * posles: getNick 123456
+ * dostanes: response getNick Ferko
+ *
+ * // TODO pole odpovedi,
+ *
+ * // TODO dorobit rozdelenie sprav ked su priliz velke
+ */
