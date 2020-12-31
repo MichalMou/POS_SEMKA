@@ -21,12 +21,13 @@ public:
     ~Server();
     void pridajKlienta(int klient) ;
     void posliSpravu(int klient, char* sprava);
+
     int getSocketFD() const;
     const vector<int>* getKlienti();
     bool getKoniec() const;
 
 private:
-
+    pthread_t sprava;
     int socketfd;
     vector<int>* klienti;
     bool koniec;
