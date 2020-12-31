@@ -7,12 +7,14 @@ using namespace std;
 
 void* primiSpravu(void* parameter) {
     Klient *klient = reinterpret_cast<Klient *>(parameter);
+    // TODO zvysit buffer 1024
     char buffer[256];
     do {
             bzero(buffer, 256);
             int n = read(klient->getSocketFD(), buffer, 255);
             if (n > 0){
                 cout << "mam spravu: " << buffer << endl;
+                klient->getZoznamSprav().push_back(buffer);
                 // TODO uloz spravu/buffer do spravy
 
             }
@@ -21,7 +23,8 @@ void* primiSpravu(void* parameter) {
 }
 
 
-Klient::Klient(string ipadressa, int port) {
+Klient::Klient(const string& ipadressa, int port) {
+    koniec = false;
     struct sockaddr_in servAddr;
     struct hostent* server;
     char buffer[256];
@@ -29,7 +32,7 @@ Klient::Klient(string ipadressa, int port) {
     server = gethostbyname(ipadressa.c_str());
     if(server == NULL){
         fprintf(stderr, "Taky server nepoznam!");
-        throw // TODO
+        // TODO throw
     }
 
     bzero((char*)&servAddr, sizeof(servAddr));
@@ -52,18 +55,19 @@ Klient::Klient(string ipadressa, int port) {
         // TODO throw
     }
 
-    pthread_t sprava;
+    // pthread_t sprava;
     pthread_create(&sprava, NULL, &primiSpravu, this);
 }
 
 Klient::~Klient() {
- //TODO
+     close(getSocketFD());
+     pthread_join(getSprava(), NULL);
 }
 
 
 
-void Klient::posliSpravu(char *sprava) {
-    write(this->getSocketFD(), sprava, strlen(sprava) + 1);
+void Klient::posliSpravu(char *odosielanaSprava) const {
+    write(this->getSocketFD(), odosielanaSprava, strlen(odosielanaSprava) + 1);
 }
 
 string Klient::precitaj(char *sprava) { //TODO odpoved na sprava, resposne je string
@@ -73,6 +77,22 @@ string Klient::precitaj(char *sprava) { //TODO odpoved na sprava, resposne je st
         // prehladat pole a najst spravnu response
         return response;
     }
+}
+
+vector<string> Klient::getZoznamSprav() {
+    return this->zoznamSprav;
+}
+
+bool Klient::getKoniec() const {
+    return this->koniec;
+}
+
+int Klient::getSocketFD() const {
+    return this->socketfd
+}
+
+pthread_t Klient::getSprava() {
+    return this->sprava;
 }
 
 

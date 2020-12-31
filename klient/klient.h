@@ -2,6 +2,7 @@
 #define UNTITLED6_KLIENT_H
 
 #include <stdio.h>
+#include <vector>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -15,15 +16,19 @@ using namespace std;
 
 class Klient {
 public:
-    Klient(string ipadressa, int port);
+    Klient(const string& ipadressa, int port);
     ~Klient();
-    // TODO read a wri
-    void posliSpravu(char* sprava);
+    void posliSpravu(char* sprava) const;
     string precitaj(char* sprava);
+
+    pthread_t getSprava();
     int getSocketFD() const;
     bool getKoniec() const;
+    vector<string> getZoznamSprav();
 
 private:
+    vector<string> zoznamSprav;
+    pthread_t sprava;
     int socketfd;
     bool koniec;
 };
