@@ -4,8 +4,11 @@ using namespace std;
 
 #define BUFF_N 1024
 
-//
+
 // TODO co je toto
+/*
+ * toto je funkcia co musi byt vlastne vlakno
+ */
 void* connectSpojenie(void* parameter) {
     Server* server  = reinterpret_cast<Server*>(parameter);
 
@@ -30,7 +33,7 @@ void* primacSprav(void* parameter) {
 
             bzero(buffer, BUFF_N);
             // TODO opravit
-            int n = read((*server->getKlienti())[i], buffer, BUFF_N - 1);
+            int n = read(newSock, buffer, BUFF_N - 1);
             if (n > 0){
                 cout << "mam spravu: " << buffer << endl;
                 // TODO
@@ -62,6 +65,9 @@ Server::Server(int port) {
      *  ak je sprava privelka napisat ze zly prikaz a sprava je privelka
      *
      * kazde vlakno ma vlastny buffer
+     *
+     * jeden prekladac pre vsetky vlakna obsluhovany mutexom
+     * jedna database, preto posielat spravy aj s ID uzivatela(na pracu s tabulkami)
      *
      */
 
