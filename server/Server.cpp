@@ -1,10 +1,11 @@
 #include "Server.h"
 
-
 using namespace std;
 
 #define BUFF_N 1024
 
+//
+// TODO co je toto
 void* connectSpojenie(void* parameter) {
     Server* server  = reinterpret_cast<Server*>(parameter);
 
@@ -19,16 +20,20 @@ void* connectSpojenie(void* parameter) {
 }
 
 
+// TODO prerobit
 void* primacSprav(void* parameter) {
     Server *server = reinterpret_cast<Server *>(parameter);
     char buffer[BUFF_N];
 
     do {
         for(int newSock : *server->getKlienti()){
+
             bzero(buffer, BUFF_N);
-            int n = read(newSock, buffer, BUFF_N - 1);
+            // TODO opravit
+            int n = read((*server->getKlienti())[i], buffer, BUFF_N - 1);
             if (n > 0){
                 cout << "mam spravu: " << buffer << endl;
+                // TODO
             }
         }
     }
@@ -36,7 +41,6 @@ void* primacSprav(void* parameter) {
 }
 
 Server::Server(int port) {
-
     koniec = false;
     struct sockaddr_in servAddr;
     bzero((char*)&servAddr,sizeof(servAddr));
@@ -49,6 +53,17 @@ Server::Server(int port) {
         perror("Chyba pri bindovani socketu :");
     }
     listen(socketfd, 5);
+
+    // TODO pthred
+    /* 1 thread bude pocuvat a robit nove spojenia + novy thread ked sa niekto pripoji
+     * socket je priamo UID
+     *  zoznam threadov pre klientov
+     *
+     *  ak je sprava privelka napisat ze zly prikaz a sprava je privelka
+     *
+     * kazde vlakno ma vlastny buffer
+     *
+     */
 
     pthread_create(&sprava, NULL, &primacSprav, this);
 }
@@ -81,5 +96,7 @@ const vector<int> *Server::getKlienti() {
 bool Server::getKoniec() const {
     return this->koniec;
 }
+
+
 
 #undef BUFF_N

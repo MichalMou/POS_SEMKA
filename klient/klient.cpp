@@ -60,6 +60,7 @@ Klient::~Klient() {
     pthread_join(getSprava(), NULL);
 }
 
+// posle spravu serveru
 void Klient::posliSpravu(char *odosielanaSprava) const {
     write(this->getSocketFD(), odosielanaSprava, strlen(odosielanaSprava) + 1);
 }

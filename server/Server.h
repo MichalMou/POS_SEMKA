@@ -19,14 +19,16 @@ class Server {
 public:
     Server(int port);
     ~Server();
-    void pridajKlienta(int klient) ;
+    void pridajKlienta(int klient);
     void posliSpravu(int klient, char* sprava);
 
     int getSocketFD() const;
     const vector<int>* getKlienti();
     bool getKoniec() const;
+    vector<string>* getZoznamSprav();
 
 private:
+
     pthread_t sprava;
     int socketfd;
     vector<int>* klienti;
