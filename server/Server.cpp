@@ -1,31 +1,36 @@
+#include <search.h>
 #include "Server.h"
 
 using namespace std;
 
 #define BUFF_N 1024
 
-
-// TODO prerobit
+/*
+ * TODO robi iba s vlaknom ktore mu bolo dane preto mame vlakno+primacSprav pre kazdy socket
+ * funkcionalita vlakna
+ * bude citat prichadzajuce spravy a davať ich prekladacu a potom posle vysledok naspet
+ */
 void* primacSprav(void* parameter) {
     Server *server = reinterpret_cast<Server *>(parameter);
     char buffer[BUFF_N];
 
+    /* ked sa vztvori socket vytvori sa aj toto vlakno, takze posledny socket je zatial volny
+     * a toto vlakno si ho zoberie a bude pren pocuvat */
+    int socket = server->getKlienti_t()->back();
+
     do {
-        for(int newSock : *server->getKlienti()){
-            bzero(buffer, BUFF_N);
-            int n = read(newSock, buffer, BUFF_N - 1);
-            if (n > 0){
-                // na testovanie cout << "mam spravu: " << buffer << endl;
-                // TODO funkcionalita
-                /*
-                 * daky string odpoved = server.getPrekladac().prelozaVykonajTabOperaciu(buffer)
-                 */
-                (*server->getMutexPrekladac()).
-
-
-                // TODO rovno aj odpoveda
-                // server->posliSpravu(newSock, odpoved);
-            }
+        bzero(buffer, BUFF_N);
+        int n = read(socket, buffer, BUFF_N - 1);
+        if (n > 0){
+            pthread_mutex_lock(server->getMutexPrekladac());
+            /*
+             * na testovanie //// cout << "mam spravu: " << buffer << endl;
+             * TODO funkcionalita
+             * daky string odpoved = server.getPrekladac().prelozaVykonajTabOperaciu(buffer
+             * TODO vrati odpoved
+             * server->posliSpravu(newSock, odpoved);
+             */
+            pthread_mutex_unlock(server->getMutexPrekladac());
         }
     }
     while (!server->getKoniec());
@@ -41,22 +46,29 @@ void* connectSpojenie(void* parameter) {
     struct sockaddr_in kliAddr;
     socklen_t klientLength = sizeof(kliAddr);
 
-    while(!server->getKoniec() && server->getKlienti_t()->size() < 20) {
-        int newSocketfd = accept(server->getSocketFD(), (struct sockaddr*)&kliAddr, &klientLength);
+    while(!server->getKoniec()) {
+         if(server->getKlienti_t()->size() < 20) {
+             int newSocketfd = accept(server->getSocketFD(), (struct sockaddr*)&kliAddr, &klientLength);
 
-        if (newSocketfd > 0) {
-            server->pridajKlienta(newSocketfd);
+             if (newSocketfd > 0) {
+                 pthread_mutex_lock(server->getMutexPrekladac());
 
-            pthread_t vlakno_klient;
-            server->getKlienti_t()->push_back(vlakno_klient);
-            pthread_create(&(server->getKlienti_t()->back()),NULL, primacSprav, server);
-        }
+                 server->pridajKlienta(newSocketfd);
+                 pthread_t vlakno_klient;
+                 server->getKlienti_t()->push_back(vlakno_klient);
+                 pthread_create(&(server->getKlienti_t()->back()),NULL, primacSprav, server);
+
+                 pthread_mutex_unlock(server->getMutexPrekladac());
+             }
+         }
     }
 }
 
 
 /*
  * zalozi sa vlakno na pripajanie klientov a ked sa niekto pripoji tak aj vlakna a socket na obsluhu klienta
+ *  kazde vlakno ma vlastny buffer
+ * jedna database, preto posielat spravy aj s ID uzivatela(na pracu s tabulkami)
  */
 Server::Server(int port) {
     koniec = false;
@@ -78,47 +90,63 @@ Server::Server(int port) {
     pthread_create(&primac_spojeni,NULL, connectSpojenie, this);
 
 
-    // TODO pthred
+    // TODO mutex a funkcionalita
     /* socket je priamo UID
-     * kazde vlakno ma vlastny buffer
-     * jedna database, preto posielat spravy aj s ID uzivatela(na pracu s tabulkami)
+
      *
      * 1.1thread bude pocuvat a robit nove spojenia + novy thread ked sa niekto pripoji :)
      *
      * 2.zoznam threadov pre klientov :)
      *
-     * 3.ak je sprava privelka napisat ze zly prikaz a sprava je privelka, teoreticky to moze robit aj prekladac
+     * 3.ak je sprava privelka napisat ze zly prikaz a sprava je privelka, teoreticky to moze robit aj prekladac :)
      *
      * 4.jeden prekladac a jedna DB pre vsetky vlakna obsluhovany mutexom
      */
-
 }
 
+/*
+ * destructor zavrie sockety a joine vlakna
+ */
 Server::~Server() {
     for (int klient : *getKlienti()) {
         close(klient);
     }
-    // TODO delete thready
-    // pthread_join(sprava,NULL);
-    delete klienti;
     close(socketfd);
+
+    for(pthread_t klient : klienti_t){
+        pthread_join(klient,NULL);
+    }
+    pthread_join(primac_spojeni,NULL);
 }
 
-int Server::getSocketFD() const{
-    return socketfd;
-}
-
+/*
+ * pridame socket klienta do vectoru klientov
+ */
 void Server::pridajKlienta(int klient) {
     klienti->push_back(klient);
 }
 
+/*
+ * odosleme spravu naspat
+ */
 void Server::posliSpravu(int klientSock, char * sprava) {
     // TODO osetrit ze sprava je max velkosti buffer
     int n = write(klientSock,sprava,strlen(sprava) + 1);
 }
 
+/*
+ * sprava sa preda prekladacu a vykona v DB, potom sa vrati string vysledok
+ */
+string Server::funkcionalitaDB(string sprava) {
+    return std::__cxx11::string();
+}
+
 const vector<int> *Server::getKlienti() {
     return this->klienti;
+}
+
+int Server::getSocketFD() const{
+    return socketfd;
 }
 
 bool Server::getKoniec() const {
@@ -131,12 +159,6 @@ vector<pthread_t>* Server::getKlienti_t() {
 
 pthread_mutex_t *Server::getMutexPrekladac() {
     return &(this->mutex_prekladac);
-}
-
-string Server::funkcionalitaDB(string sprava) {
-
-
-    return std::__cxx11::string();
 }
 
 

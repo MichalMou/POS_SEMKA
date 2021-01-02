@@ -31,11 +31,10 @@ public:
 
 private:
     pthread_mutex_t mutex_prekladac;
-    vector<pthread_t> klienti_t;
-    //pthread_t sprava;
     pthread_t primac_spojeni;
-    int socketfd;
+    vector<pthread_t> klienti_t;
     vector<int>* klienti;
+    int socketfd;
     bool koniec;
     };
 

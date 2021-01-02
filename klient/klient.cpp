@@ -15,8 +15,10 @@ void* primiSpravu(void* parameter) {
             int n = read(klient->getSocketFD(), buffer, BUFF_N - 1);
             if (n > 0){
                 cout << "mam spravu: " << buffer << endl;
-                klient->getZoznamSprav().push_back(buffer);
+                string sprava = buffer;
+                klient->getZoznamSprav().push_back(sprava);
                 // ak bude problem s dlzkou spravy tak dorobit rozkuskovanie
+                n = 0;
             }
     }
     while (!klient->getKoniec());
@@ -27,13 +29,13 @@ Klient::Klient(const string& ipadressa, int port) {
     struct sockaddr_in servAddr;
     struct hostent* server;
     char buffer[BUFF_N];
-
     server = gethostbyname(ipadressa.c_str());
+
+    // TODO try catch alebo dake error hlasky
 
     if(server == NULL){
         cout << "Taky server nepoznam!" << endl;
     }
-
     bzero((char*)&servAddr, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     bcopy(
@@ -42,12 +44,10 @@ Klient::Klient(const string& ipadressa, int port) {
             server->h_length
     );
     servAddr.sin_port = htons(port);
-
     socketfd = socket(AF_INET,SOCK_STREAM, 0);
     if(socketfd < 0){
         cout << "Nedokazalo sa vytvorit!" << endl;
     }
-
     if(connect(socketfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
         cout << "Nedokazalo sa pripojit!" << endl;
     }
