@@ -28,8 +28,9 @@ public:
     vector<string>* getZoznamSprav();
 
 private:
-
-    pthread_t sprava;
+    pthread_t klienti_t[20];
+    //pthread_t sprava;
+    pthread_t primac_spojeni;
     int socketfd;
     vector<int>* klienti;
     bool koniec;

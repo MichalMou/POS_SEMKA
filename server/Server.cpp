@@ -18,6 +18,7 @@ void* connectSpojenie(void* parameter) {
         int newSocketfd = accept(server->getSocketFD(), (struct sockaddr*)&kliAddr, &klientLength);
         if (newSocketfd > 0) {
             server->pridajKlienta(newSocketfd);
+
         }
     }
 }
@@ -55,10 +56,18 @@ Server::Server(int port) {
     if(bind(socketfd,(struct sockaddr*) &servAddr, sizeof(servAddr)) < 0){
         perror("Chyba pri bindovani socketu :");
     }
-    listen(socketfd, 5);
+    listen(socketfd, 25);
+
+    // thread co obsluhuje vytvorenie novych spojeni
+    pthread_create(&primac_spojeni,NULL, connectSpojenie, this);
+
+
+
+    pthread_create(&sprava, NULL, &primacSprav, this);
+
 
     // TODO pthred
-    /* 1 thread bude pocuvat a robit nove spojenia + novy thread ked sa niekto pripoji
+    /* 1 thread bude pocuvat a robit nove spojenia + novy thread ked sa niekto pripoji :)
      * socket je priamo UID
      *  zoznam threadov pre klientov
      *
@@ -71,7 +80,6 @@ Server::Server(int port) {
      *
      */
 
-    pthread_create(&sprava, NULL, &primacSprav, this);
 }
 
 Server::~Server() {
