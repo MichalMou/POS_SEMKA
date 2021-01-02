@@ -21,14 +21,17 @@ public:
     ~Server();
     void pridajKlienta(int klient);
     void posliSpravu(int klient, char* sprava);
+    string funkcionalitaDB(string sprava);
 
     int getSocketFD() const;
     const vector<int>* getKlienti();
     bool getKoniec() const;
-    vector<string>* getZoznamSprav();
+    vector<pthread_t>* getKlienti_t();
+    pthread_mutex_t* getMutexPrekladac();
 
 private:
-    pthread_t klienti_t[20];
+    pthread_mutex_t mutex_prekladac;
+    vector<pthread_t> klienti_t;
     //pthread_t sprava;
     pthread_t primac_spojeni;
     int socketfd;
