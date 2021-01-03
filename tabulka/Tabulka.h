@@ -1,12 +1,20 @@
 //
-// Created by Michal on 30. 12. 2020.
+// Created by Pocitac on 2.1.2021.
 //
 
-#ifndef UNTITLED6_TABULKA_H
-#define UNTITLED6_TABULKA_H
+#ifndef SKUSKA_TABULKA_H
+#define SKUSKA_TABULKA_H
 
+#endif //SKUSKA_TABULKA_H
+
+#include <iostream>
 #include <string>
+#include <fstream>
+#include <unistd.h>
 #include <vector>
+#include <sstream>
+#include <algorithm>
+
 using namespace std;
 
 class Tabulka {
@@ -14,24 +22,17 @@ public:
     Tabulka();
     ~Tabulka();
 
-    bool pridajZaznam(string zaznam); // prida zaznam do csv suboru, database musi pripravit vhodny zaznam
-    int hladatUIDZaznam(int cisloStlpca, string hladanaHodnota); // vrati cislo zaznamu/UID na ktorom je zaznam, cisloStlpca je atribut podla ktoreho hladame
-    bool vymazZaznam(int cisloZaznamu); // vymaze riadok
-    bool aktualizujZaznam(int UIDZaznamu, string zaznam); // TODO substringy co dostaneme hodnotu kt chceme menit alebo zmeneny zanam?
-    string dajZaznam(int UIDZaznamu);
+    bool pridajZaznam(const string& name);
+    bool vymazZaznam(const string& name);
+    bool aktualizujZaznam(const string& name);
+    void vypisNeutriedenejTabulky(const string& name);
+    void vypisUtriedenejTabulky(const string& name);
+    void nastavPristup();
 
-    void nastavPristup(string zaznamPristupu);
-    int getUIDPouzivatela(int ID);
-    string getPistup(int UIDzaznamu);
-
-    vector<string> vypisUtriedenuTabulku(int stlpecNaUtriedenie);
-    vector<string> vypisTabulka();
+    // TODO vypisUtriedenu/Neutriedenu tabulku
+    // TODO hladajZaznam()
+    // TODO pri nastavovani pristupu sa posiela UID
 
 private:
-    vector<string> data;
-    vector<string> tabPristupy;
-    string nazvyStlpcov;
+
 };
-
-
-#endif //UNTITLED6_TABULKA_H
