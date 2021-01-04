@@ -13,121 +13,114 @@ Databaza::~Databaza() {
 
 }
 
-bool Databaza::vytvorTab(const string& name) {
-    // TODO dorobit pri vytvarani aby sa vytvorila aj tabulka pristupo
-    // TODO dorobit zapis mena tvorcu tabulky + jeho pristupy na 1
-
-    int pocetStlpcov;
-    string nazovStlpca;
-    int datTypStlpca;
-    bool spravne = false;
-
-
-    if (exists(name)) {
-        cout << "tabulka existuje" << endl;
+bool Databaza::vytvorTab(const string& nazovTabulky,const string& menoPouzivatela,int pocetStlpcov, const string& nazvyStlcov, const string& datoveTypy) {
+    if (exists(nazovTabulky)) {
         return false;
     }
 
-    cout << "Prvy stlpec je vzdy ID." << endl;
-    cout << "Minimalny pocet stlpcov je 2" << endl;
-    cout << "Zadajte pocet stlpcov:" << endl;
+    if (jeUzivatel(menoPouzivatela) > 0) {
+        if (pocetStlpcov > 1) {
 
-    cin >> pocetStlpcov;
+            fstream fout;
+            fstream pristupy;
+            string nazovPristupov = "pristupy_" + nazovTabulky;
 
-    if (pocetStlpcov > 1) {
+            fout.open(nazovTabulky, ios::out | ios::app);
+            fout << menoPouzivatela << endl;
+            fout << "ID," << nazvyStlcov << endl;
+            fout << "int," << datoveTypy << endl;
+            fout.close();
 
-        fstream fout;
-        fout.open(name, ios::out | ios::app);
-        fout << "Tvorca: Meno..." << endl;
-        fout << "ID,";
-        for (int i = 1; i < pocetStlpcov; ++i) {
-            cout << "Zadajte nazov stlpca: ";
-            cin >> nazovStlpca;
-            if (i + 1 == pocetStlpcov) {
-                fout << nazovStlpca << endl;
-            } else {
-                fout << nazovStlpca << ",";
-            }
+            pristupy.open(nazovPristupov, ios::out | ios::app);
+            pristupy << "Meno,vkladanie,aktualizovanie,vypisovanie,mazanie" << endl;
+            pristupy << menoPouzivatela << "," << "1,1,1,1" << endl;
+
+            return true;
+        } else {
+            cout << "Minimalny pocet stlpcov je 2" << endl;
+            return false;
         }
-        fout << "int,";
-        for (int i = 1; i < pocetStlpcov; ++i) {
-            spravne = false;
-            cout << "Zadajte datovy typ stlpcov: {0 - INT, 1 - STRING, 2 - DOUBLE, 3 - DATE, 4 - BOOLEAN}";
-            while(!spravne) {
-                cin >> datTypStlpca;
-                switch (datTypStlpca) {
-                    case 0:
-                        if (i + 1 == pocetStlpcov) {
-                            fout << "int" << endl;
-                        } else {
-                            fout << "int,";
-                        }
-
-                        spravne = true;
-                        break;
-                    case 1:
-                        if (i + 1 == pocetStlpcov) {
-                            fout << "string" << endl;
-                        } else {
-                            fout << "string,";
-                        }
-
-                        spravne = true;
-                        break;
-                    case 2:
-                        if (i + 1 == pocetStlpcov) {
-                            fout << "double" << endl;
-                        } else {
-                            fout << "double,";
-                        }
-
-                        spravne = true;
-                        break;
-                    case 3:
-                        if (i + 1 == pocetStlpcov) {
-                            fout << "date" << endl;
-                        } else {
-                            fout << "date,";
-                        }
-
-                        spravne = true;
-                        break;
-                    case 4:
-                        if (i + 1 == pocetStlpcov) {
-                            fout << "boolean" << endl;
-                        } else {
-                            fout << "boolean,";
-                        }
-
-                        spravne = true;
-                        break;
-                    default:
-                        cout << "Nespravna moznost. Skus znovu" << endl;
-                }
-            }
-        }
-        fout.close();
-        cout << "tabulka uspesne vytvorena" << endl;
-
-        return true;
-    } else {
-        cout << "Minimalny pocet stlpcov je 2" << endl;
-        return false;
     }
-}
-
-bool Databaza::zrusTab(const std::string& name) {
-    if (exists(name)) {
-        unlink((name).c_str());
-        cout << "tabulka vymazana" << endl;
-        return true;
-    }
-
-    cout << "tabulka neexistuje" << endl;
     return false;
 }
 
-bool Databaza::exists(const string& name) {
-        ifstream f((name).c_str());
+bool Databaza::zrusTab(const string& nazovTabulky) {
+    if (exists(nazovTabulky)) {
+        string pristupy = "pristupy_" + nazovTabulky;
+        unlink((nazovTabulky).c_str());
+        unlink(pristupy.c_str());
+        return true;
+    }
+    return false;
+}
+
+bool Databaza::exists(const string& nazovTabulky) {
+        ifstream f((nazovTabulky).c_str());
         return f.good();
 }
+
+int Databaza::jeUzivatel(const string & udaje) {
+    fstream fout;
+    string riadok;
+    string idString;
+    int id;
+    const string & subor = "logins.csv";
+
+    fout.open(subor, ios::in);
+
+    while(getline(fout, riadok)) {
+        stringstream s(riadok);
+        if (riadok.find(udaje) != string::npos) {
+            getline(s, idString, ',');
+            id = stoi(idString);
+            return id;
+        }
+    }
+    return 0;
+}
+
+void Databaza::zapisPouzivatela(const string &udaje) {
+    const string & subor = "logins.csv";
+    string riadok;
+    fstream fout;
+    int count = 0;
+
+    ifstream suborA(subor);
+
+    while (getline(suborA, riadok)) {
+        ++count;
+    }
+
+    fout.open(subor,ios::out | ios::app);
+
+    fout << count + 1 << "," << udaje << endl;
+
+    fout.close();
+}
+
+bool Databaza::nastavPristup(const string &menoPouzivatela, const string &nazovTabulky, const string &dataPristupov) {
+    fstream fin,fout;
+    stringstream temp;
+    string line, word, meno, stlpce, typy;
+    string riadok;
+    const string & pristupy = "pristupy_" + nazovTabulky;
+
+    if(!exists(pristupy)) {
+        return false;
+    }
+
+    if(jeUzivatel(menoPouzivatela) > 0) {
+        fout.open(pristupy,ios::out | ios::app);
+        fout << menoPouzivatela << "," << dataPristupov << endl;
+    }
+
+    return true;
+}
+
+bool Databaza::aktualizujPristup(const string &menoPouzivatela, const string &nazovTabulky, const string &dataPristupov) {
+    // TODO
+    return false;
+}
+
+
+

@@ -10,6 +10,8 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -17,9 +19,14 @@ class Databaza{
 public:
     Databaza();
     ~Databaza();
-    bool vytvorTab(const string& name);
-    bool zrusTab(const string& name);
-    bool exists (const string& name);
+    bool vytvorTab(const string& nazovTabulky,const string& menoPouzivatela, int pocetStlpcov, const string& nazvyStlcov, const string& datoveTypy);
+    bool zrusTab(const string& nazovTabulky);
+    bool exists (const string& nazovTabulky);
+    int jeUzivatel(const string& udaje);
+    void zapisPouzivatela (const string& udaje);
+    bool nastavPristup(const string &menoPouzivatela, const string & nazovTabulky, const string &dataPristupov);
+    bool aktualizujPristup(const string &menoPouzivatela, const string & nazovTabulky, const string &dataPristupov);
 
 private:
+
 };
