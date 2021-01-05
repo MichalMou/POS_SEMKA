@@ -4,7 +4,6 @@
 
 #include "Tabulka.h"
 
-
 Tabulka::Tabulka() {
 
 }
@@ -13,120 +12,87 @@ Tabulka::~Tabulka() {
 
 }
 
-bool Tabulka::pridajZaznam(const string& name) {
-    // TODO nejake kontroly ohladom suborov + vypis k ostatnym ak sa nenajdu dany zaznam
-    // TODO vsetky zaznamy musia byt NOT NULL + aj v ostatnych metódach
-
+bool Tabulka::pridajZaznam(const string& nazovTabulky, const string& data) {
     string riadok;
-    int count = 0;
+    string poslednyRiadok;
     stringstream temp;
-    vector<string> nazvyStlpcov;
-    vector<string> datTypy;
     fstream fout;
-    string vstup;
-    bool spravne;
-    ifstream subor(name);
-
-    //Cyklus na spocitanie riadkov v tabulke
-    while(getline(subor,riadok)) {
-        ++count;
+    int count = 0;
+    int id = 0;
+    string idString;
+    if(!exists(nazovTabulky)) {
+        return false;
     }
-    subor.clear();
-    subor.seekg(0);
 
-    //Prvy riadok vypise meno
+    ifstream subor(nazovTabulky);
+
+    if(subor.is_open()) {
+        subor.seekg(0,std::ios_base::end);      //Start at end of file
+        char ch = ' ';                        //Init ch not equal to '\n'
+        while(ch != '\n'){
+            subor.seekg(-2,std::ios_base::cur); //Two steps back, this means we
+            //will NOT check the last character
+            if((int)subor.tellg() <= 0){        //If passed the start of the file,
+                subor.seekg(0);                 //this is the start of the line
+                break;
+            }
+            subor.get(ch);                      //Check the next character
+        }
+
+        getline(subor,poslednyRiadok);
+
+        temp.str(poslednyRiadok);
+        getline(temp, idString,',');
+        for (int i = 0; i < idString.length(); ++i) {
+            if (isdigit(idString[i]) == false){
+                count = 1;
+                break;
+            } else {
+                count = 0;
+            }
+        }
+
+        if (count == 1) {
+            id = 0;
+        } else {
+            id = stoi(idString);
+        }
+
+        subor.close();
+    }
+    temp.clear();
+    //Prvy riadok - meno
     getline(subor,riadok);
-    cout << riadok << endl;
 
     //Nacita riadok s nazvami stlpcov
     getline(subor, riadok);
-    temp.str(riadok);
-    while  (getline(temp, riadok,',')){
-        nazvyStlpcov.push_back(riadok);
-    }
-
-    temp.clear();
 
     //Nacita riadok s datovymi typmi
     getline(subor, riadok);
-    temp.str(riadok);
-    while  (getline(temp, riadok,',')){
-        datTypy.push_back(riadok);
-    }
 
     //Zapis zaznamu do suboru
-    fout.open(name, ios::out | ios::app);
+    fout.open(nazovTabulky, ios::out | ios::app);
 
-    fout << (count - 2) << ",";
+    fout << id + 1 << "," << data << endl;
 
-    for (int i = 1; i < nazvyStlpcov.size(); ++i) {
-        spravne = false;
+    fout.close();
 
-        while (!spravne) {
-            cout << nazvyStlpcov[i] << ": " << endl;
-            cin >> vstup;
-
-            if (datTypy[i] == "int") {
-                if (i+1 == nazvyStlpcov.size()) {
-                    fout << vstup << endl;
-                    spravne = true;
-                } else {
-                    fout << vstup << ",";
-                    spravne = true;
-                }
-            } else if (datTypy[i] == "string") {
-                if (i+1 == nazvyStlpcov.size()) {
-                    fout << vstup << endl;
-                    spravne = true;
-                } else {
-                    fout << vstup << ",";
-                    spravne = true;
-                }
-            } else if (datTypy[i] == "double") {
-                if (i+1 == nazvyStlpcov.size()) {
-                    fout << vstup << endl;
-                    spravne = true;
-                } else {
-                    fout << vstup << ",";
-                    spravne = true;
-                }
-            } else if (datTypy[i] == "date") {
-                if (i+1 == nazvyStlpcov.size()) {
-                    fout << vstup << endl;
-                    spravne = true;
-                } else {
-                    fout << vstup << ",";
-                    spravne = true;
-                }
-            } else if (datTypy[i] == "boolean") {
-                if (i+1 == nazvyStlpcov.size()) {
-                    fout << vstup << endl;
-                    spravne = true;
-                } else {
-                    fout << vstup << ",";
-                    spravne = true;
-                }
-            }
-        }
-    }
     return true;
 }
 
-bool Tabulka::vymazZaznam(const string& name) {
-    // TODO nejake kontroly ohladom suborov + vypis k ostatnym ak sa nenajdu dany zaznam
-    // TODO volba vymazat 1 alebo vsetky zaznamy + dorobit vymazanie vsetkych
-
+bool Tabulka::vymazZaznam(const string& nazovTabulky, int id) {
     fstream fin,fout;
-    int rowNumber;
     int zhoda = 0;
     vector<string> row;
     string line, word, meno, stlpce, typy;
 
-    fin.open(name,ios::in);
+    if(!exists(nazovTabulky)) {
+        return false;
+    }
+
+    fin.open(nazovTabulky,ios::in);
     fout.open("new.csv",ios::out);
 
-    cout << "Zadajte ID riadku pre zmazanie: " << endl;
-    cin >> rowNumber;
 
     getline(fin,meno);
 
@@ -148,18 +114,20 @@ bool Tabulka::vymazZaznam(const string& name) {
         while (getline(s, word, ',')) {
             row.push_back(word);
         }
-
-        int roll = stoi(row[0]);
-
-        if (roll != rowNumber) {
-            if (!fin.eof()) {
-                for (int i = 0; i < row.size() - 1; ++i) {
-                    fout << row[i] << ",";
-                }
-                fout << row[row.size() - 1] << endl;
-            }
-        } else {
+        if (id == 0) {
             zhoda = 1;
+        } else {
+            int roll = stoi(row[0]);
+            if (roll != id) {
+                if (!fin.eof()) {
+                    for (int i = 0; i < row.size() - 1; ++i) {
+                        fout << row[i] << ",";
+                    }
+                    fout << row[row.size() - 1] << endl;
+                }
+            } else {
+                zhoda = 1;
+            }
         }
         if (fin.eof()) {
             break;
@@ -174,32 +142,28 @@ bool Tabulka::vymazZaznam(const string& name) {
     fin.close();
     fout.close();
 
-    remove(name.c_str());
-    rename("new.csv", name.c_str());
+    remove(nazovTabulky.c_str());
+    rename("new.csv", nazovTabulky.c_str());
 
     return true;
 }
 
-bool Tabulka::aktualizujZaznam(const string& name) {
-    // TODO nejake kontroly ohladom suborov + vypis k ostatnym ak sa nenajdu dany zaznam
+bool Tabulka::aktualizujZaznam(const string& nazovTabulky, int id, const string& nazovStlpca, const string &data) {
 
     fstream fin,fout;
-    int rowNumber;
     vector<string> row;
     vector<string> nazvyStlpcov;
     stringstream temp;
     string line, word, meno, stlpce, typy;
     int index = 0;
-    string inIndex;
     int count = 0;
-    string data;
 
-    fin.open(name, ios::in);
+    if(!exists(nazovTabulky)) {
+        return false;
+    }
 
+    fin.open(nazovTabulky, ios::in);
     fout.open("new.csv", ios::out);
-
-    cout << "Zadajte ID riadku ktory chcete zmenit: " << endl;
-    cin >> rowNumber;
 
     getline(fin,meno);
     fout << meno << endl;
@@ -215,12 +179,10 @@ bool Tabulka::aktualizujZaznam(const string& name) {
     fout << typy << endl;
 
     while(index == 0) {
-        cout << "Zadajte nazov stlpca ktory chcete zmenit: " << endl;
-        cin >> inIndex;
 
         for(string &nazov : nazvyStlpcov) {
             ++count;
-            if (nazov == inIndex) {
+            if (nazov == nazovStlpca) {
                 index = count - 1;
             }
         }
@@ -229,9 +191,6 @@ bool Tabulka::aktualizujZaznam(const string& name) {
             cout << "Nespravny nazov stlpca. Skus znovu: " << endl;
         }
     }
-
-    cout << "Zadajte data pre zmenu: " << endl;
-    cin >> data;
 
     while(!fin.eof()) {
         row.clear();
@@ -245,7 +204,7 @@ bool Tabulka::aktualizujZaznam(const string& name) {
 
         int roll = stoi(row[0]);
 
-        if (roll == rowNumber) {
+        if (roll == id) {
             stringstream zmena;
 
             zmena << data;
@@ -271,18 +230,22 @@ bool Tabulka::aktualizujZaznam(const string& name) {
     fin.close();
     fout.close();
 
-    remove(name.c_str());
-    rename("new.csv", name.c_str());
+    remove(nazovTabulky.c_str());
+    rename("new.csv", nazovTabulky.c_str());
     return true;
 }
 
-void Tabulka::vypisNeutriedenejTabulky(const string& name) {
+string Tabulka::vypisNeutriedenejTabulky(const string& name, int vstup) {
     fstream fin;
     string riadok;
     bool hodnota = false;
-    int vstup;
     int count = 0;
     int pocetRiadkov = 0;
+    string vystup;
+
+    if(!exists(name)) {
+        return "Neexistuje";
+    }
 
     fin.open(name.c_str(), ios::in);
 
@@ -293,43 +256,40 @@ void Tabulka::vypisNeutriedenejTabulky(const string& name) {
     fin.seekg(0);
 
     while (!hodnota) {
-        cout << "Kolko zaznamov chcete vypisat ?   {0 - znamena vsetky hodnoty} ";
-        cin >> vstup;
-
         if (vstup == 0) {
             while(!fin.eof()) {
                 getline(fin, riadok);
-                cout << riadok << endl;
+                vystup += riadok + "|";
                 hodnota = true;
             }
         } else {
             if (vstup <= pocetRiadkov - 3) {
                 getline(fin, riadok);
-                cout << riadok << endl;
+                vystup += riadok + "|";
                 getline(fin, riadok);
-                cout << riadok << endl;
+                vystup += riadok + "|";
                 getline(fin, riadok);
-                cout << riadok << endl;
+                vystup += riadok + "|";
 
                 while (count != vstup) {
                     getline(fin, riadok);
-                    cout << riadok << endl;
+                    vystup += riadok + "|";
                     ++count;
                 }
                 hodnota = true;
 
             } else {
-                cout << "Tolko zaznamov v tabulke nie je" << endl;
+                cout << "Tolko zaznamov v tabulke nie je skuste znova." << endl;
             }
         }
     }
     fin.close();
+    return vystup;
 }
 
-void Tabulka::vypisUtriedenejTabulky(const string& name) {
+string Tabulka::vypisUtriedenejTabulky(const string& name, const string& nazovStlpca, int vstup) {
     fstream fin;
     string riadok, meno, stlpce, typy, slovo, word;
-    bool hodnota = false;
     int count = 0;
     int pocetRiadkov = 0;
     vector<string> dataZoStlpcov;
@@ -338,8 +298,10 @@ void Tabulka::vypisUtriedenejTabulky(const string& name) {
     vector<string> allRows;
     stringstream temp;
     int index = 0;
-    string inIndex;
 
+    if (!exists(name)) {
+        return "Chyba";
+    }
 
     fin.open(name.c_str(), ios::in);
 
@@ -359,21 +321,18 @@ void Tabulka::vypisUtriedenejTabulky(const string& name) {
     }
     getline(fin, typy);
 
-
     while(index == 0) {
-        cout << "Zadajte nazov stlpca ktory chcete zmenit: " << endl;
-        cin >> inIndex;
 
         for(string &nazov : nazvyStlpcov) {
             ++count;
-            if (nazov == inIndex) {
+            if (nazov == nazovStlpca) {
                 index = count - 1;
-                //cout << "index: " << index << endl;
             }
         }
 
         if (index == 0) {
-            cout << "Nespravny nazov stlpca. Skus znovu: " << endl;
+            cout << "Nespravny nazov stlpca." << endl;
+            return nullptr;
         }
     }
 
@@ -395,7 +354,11 @@ void Tabulka::vypisUtriedenejTabulky(const string& name) {
             }
         }
 
-        sort(dataZoStlpcov.begin(), dataZoStlpcov.end());
+        sort(dataZoStlpcov.begin(), dataZoStlpcov.end(), [](const auto& lhs, const auto& rhs){
+            const auto result = mismatch(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend(), [](const auto& lhs, const auto& rhs){return tolower(lhs) == tolower(rhs);});
+
+            return result.second != rhs.cend() && (result.first == lhs.cend() || tolower(*result.first) < tolower(*result.second));
+        });
 
 
         if (fin.eof()) {
@@ -421,14 +384,38 @@ void Tabulka::vypisUtriedenejTabulky(const string& name) {
     cout << stlpce << endl;
     cout << typy << endl;
 
-    for (int i = 0; i < n; ++i) {
-        cout << pole[i] << endl;
+    string vystup;
+
+    if (vstup == 0) {
+        for (int i = 0; i < n; ++i) {
+            vystup += pole[i] + "|";
+        }
+    } else {
+        if (vstup <= pocetRiadkov) {
+            for (int i = 0; i < vstup; ++i) {
+                vystup += pole[i] + "|";
+            }
+        } else {
+            cout << "Tolko zaznamov v tabulke nie je skuste znova." << endl;
+        }
     }
 
     fin.close();
-
+    return vystup;
 }
 
-void Tabulka::nastavPristup() {
+bool Tabulka::exists(const string &name) {
+    ifstream f((name).c_str());
+    return f.good();
+}
 
+string Tabulka::getMenoTvorcu(const string& nazovTabulky) {
+    fstream fin;
+    string riadok;
+
+    fin.open(nazovTabulky, ios::in);
+
+    getline(fin, riadok);
+
+    return riadok;
 }
