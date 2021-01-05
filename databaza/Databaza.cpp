@@ -23,6 +23,7 @@ bool Databaza::vytvorTab(const string& nazovTabulky,const string& menoPouzivatel
 
             fstream fout;
             fstream pristupy;
+            fstream zoznam;
             string nazovPristupov = "pristupy_" + nazovTabulky;
 
             fout.open(nazovTabulky, ios::out | ios::app);
@@ -35,6 +36,13 @@ bool Databaza::vytvorTab(const string& nazovTabulky,const string& menoPouzivatel
             pristupy << "Meno,vkladanie,aktualizovanie,vypisovanie,mazanie" << endl;
             pristupy << menoPouzivatela << "," << "1,1,1,1" << endl;
 
+            pristupy.close();
+
+            zoznam.open("ZoznamTabuliek.csv", ios::out | ios::app);
+            zoznam << menoPouzivatela << "," << nazovTabulky << endl;
+
+            zoznam.close();
+
             return true;
         } else {
             cout << "Minimalny pocet stlpcov je 2" << endl;
@@ -45,10 +53,35 @@ bool Databaza::vytvorTab(const string& nazovTabulky,const string& menoPouzivatel
 }
 
 bool Databaza::zrusTab(const string& nazovTabulky) {
+    fstream fin;
+    fstream fout;
+    string riadok;
+    vector<string> row;
+
     if (exists(nazovTabulky)) {
         string pristupy = "pristupy_" + nazovTabulky;
         unlink((nazovTabulky).c_str());
         unlink(pristupy.c_str());
+
+        fin.open("ZoznamTabuliek.csv", ios::in);
+        fout.open("new.csv", ios::out);
+
+        while (getline(fin, riadok)) {
+            row.push_back(riadok);
+        }
+
+        for (int i = 0; i < row.size(); ++i) {
+            if (row[i].find(nazovTabulky) == std::string::npos) {
+                fout << row[i] << endl;
+            }
+        }
+
+        fin.close();
+        fout.close();
+
+        remove("ZoznamTabuliek.csv");
+        rename("new.csv", "ZoznamTabuliek.csv");
+
         return true;
     }
     return false;
@@ -98,7 +131,7 @@ void Databaza::zapisPouzivatela(const string &udaje) {
     fout.close();
 }
 
-bool Databaza::nastavPristup(const string &menoPouzivatela, const string &nazovTabulky, const string &dataPristupov) {
+bool Databaza::nastavPristup(const string &nazovTabulky, const string &menoPouzivatela, const string &dataPristupov) {
     fstream fin,fout;
     stringstream temp;
     string line, word, meno, stlpce, typy;
@@ -117,9 +150,109 @@ bool Databaza::nastavPristup(const string &menoPouzivatela, const string &nazovT
     return true;
 }
 
-bool Databaza::aktualizujPristup(const string &menoPouzivatela, const string &nazovTabulky, const string &dataPristupov) {
-    // TODO
-    return false;
+bool Databaza::aktualizujVsetkyPristupy(const string &nazovTabulky, const string &menoPouzivatela, const string &dataPristupov) {
+
+    fstream fin,fout;
+    vector<string> row;
+    string riadok;
+    string word;
+    stringstream s;
+    const string& pristupy = "pristupy_" + nazovTabulky;
+
+    if(!exists(nazovTabulky)) {
+        return false;
+    }
+
+    fin.open(pristupy, ios::in);
+    fout.open("new.csv", ios::out);
+
+    getline(fin, riadok);
+    fout << riadok << endl;
+
+    while(!fin.eof()) {
+        row.clear();
+
+        while (getline(fin, riadok, '\n')) {
+            row.push_back(riadok);
+        }
+        for (int i = 0; i < row.size(); ++i) {
+            s.str("");
+            s << row[i];
+            getline(s,word,',');
+            if (word == menoPouzivatela) {
+                fout << menoPouzivatela << "," << dataPristupov << endl;
+            } else {
+                fout << row[i] << endl;
+            }
+        }
+    }
+
+    fin.close();
+    fout.close();
+
+    remove(pristupy.c_str());
+    rename("new.csv", pristupy.c_str());
+
+    return true;
+}
+
+string Databaza::getPristup(const string &nazovTabulky, const string &menoPouzivatela) {
+
+    fstream fout;
+    string riadok;
+    string word;
+    vector<string> row;
+    const string& pristupy = "pristupy_" + nazovTabulky;
+    stringstream s;
+
+    fout.open(pristupy, ios::in);
+
+    getline(fout, riadok);
+
+    if(!exists(nazovTabulky)) {
+        return "Tabulka neexistuje";
+    }
+
+    while(!fout.eof()) {
+        while (getline(fout, riadok, '\n')) {
+            row.push_back(riadok);
+        }
+
+        for (int i = 0; i < row.size(); ++i) {
+            s.str("");
+            s << row[i];
+            getline(s,word,',');
+            if (word == menoPouzivatela) {
+                getline(s, word);
+                cout << word << endl;
+                return word;
+            }
+        }
+    }
+
+    fout.close();
+
+    return "Nenasiel sa";
+}
+
+string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
+    fstream fin;
+    fin.open("ZoznamTabuliek.csv", ios::in);
+    vector<string> row;
+    string riadok;
+    string vystup;
+
+    while (getline(fin, riadok)) {
+        row.push_back(riadok);
+    }
+
+    for (int i = 0; i < row.size(); ++i) {
+        if (row[i].find(menoPouzivatela) != std::string::npos) {
+            vystup += row[i] + "|";
+        }
+    }
+    cout << vystup << endl;
+    return vystup;
 }
 
 

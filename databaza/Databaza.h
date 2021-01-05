@@ -24,8 +24,11 @@ public:
     bool exists (const string& nazovTabulky);
     int jeUzivatel(const string& udaje);
     void zapisPouzivatela (const string& udaje);
-    bool nastavPristup(const string &menoPouzivatela, const string & nazovTabulky, const string &dataPristupov);
-    bool aktualizujPristup(const string &menoPouzivatela, const string & nazovTabulky, const string &dataPristupov);
+    bool nastavPristup( const string & nazovTabulky,const string &menoPouzivatela, const string &dataPristupov);
+    bool aktualizujVsetkyPristupy( const string & nazovTabulky,const string &menoPouzivatela, const string &dataPristupov);
+    string getPristup(const string &nazovTabulky, const string &menoPouzivatela);
+    string getZoznamTabuliekPouzivatela(const string &menoPouzivatela);
+
 
 private:
 
