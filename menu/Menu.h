@@ -7,20 +7,30 @@
 
 #include <iostream>
 #include <stdio.h>
+#include "../server/Server.h"
+#include "../klient/klient.h"
+#include "../User/User.h"
+#include "../klient/PrekladacKlient.h"
 
 using namespace std;
 
 class Menu {
 public:
-    void start_menu();
-    void vyber_cli_ser();
+    void vyber_kli_ser();
     void prihlasenie();
     void registracia();
-    static void ClearScreen(){
-        cout << string( 100, '\n' );
-    }
+    void spustiServer();
+    void spustiKlienta();
+    void vytvorTab();
+    void vypisVytvoreneTab();
+    void vypisPristupneTab();
+    void UpravaTab();
+
+    static void ClearScreen();
+
 private:
-    int vstup;
+    User* user;
+    PrekladacKlient* prekladacKlient;
 
 };
 

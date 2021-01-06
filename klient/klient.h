@@ -12,14 +12,15 @@
 #include <unistd.h>
 #include <netdb.h>
 
+
 using namespace std;
 
 class Klient {
 public:
     Klient(const string& ipadressa, int port);
     ~Klient();
-    void posliSpravu(char* sprava) const;
-    string precitaj(char* sprava);
+    void posliSpravu(char* sprava);
+    string precitaj(string query);
 
     pthread_t getSprava();
     int getSocketFD() const;

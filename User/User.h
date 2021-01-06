@@ -5,9 +5,28 @@
 #ifndef UNTITLED6_USER_H
 #define UNTITLED6_USER_H
 
+#include <string>
+
+using namespace std;
 
 class User {
+public:
+    User(string parMeno, string parHeslo, int parUID);
+    string getMenoUpravovanejTab();
+    string getMeno();
+    string getHeslo();
+    int getUID();
 
+    void setMenoUpravovanejTab(string parMenoTab);
+    void setMeno(string parMeno);
+    void setHeslo(string parHeslo);
+    void setUID(int parUID);
+
+private:
+    string menoUpravovanejTab;
+    string meno;
+    string heslo;
+    int UID;
 };
 
 

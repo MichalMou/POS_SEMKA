@@ -4,7 +4,7 @@
 
 #include "Server.h"
 #include <iostream>
-
+/*
 int main(int argc, char *argv[]){
     if (argc < 2) {
         cout << "Neni zadana port" << endl;
@@ -20,4 +20,4 @@ int main(int argc, char *argv[]){
 
     delete server_test;
     return 0;
-}
+}*/

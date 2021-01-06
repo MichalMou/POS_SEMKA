@@ -4,7 +4,7 @@
 
 #include "klient.h"
 #include <iostream>
-
+/*
 int main(int argc, char *argv[]){
     if (argc < 3) {
         cout << "Neni zadana ip alebo port" << endl;
@@ -14,11 +14,19 @@ int main(int argc, char *argv[]){
     Klient* klient_test = new Klient(argv[1], atoi(argv[2]));
 
     klient_test->posliSpravu("Halo!");
-    klient_test->precitaj("Halo!");
+
+    bool precitane = false;
+    do{
+        if(klient_test->precitaj("Halo!");){
+
+            klient_test->precitaj("Halo!");
+        }
+    }
+    while()
 
 
 
 
     delete klient_test;
     return 0;
-}
+}*/
