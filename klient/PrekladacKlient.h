@@ -8,6 +8,7 @@
 #include <string>
 
 #include <string.h>
+#include <iostream>
 #include "../User/User.h"
 #include "klient.h"
 
@@ -29,16 +30,17 @@ public:
 
     bool zmazTab(string nazovTab, string userName);
 
-    bool pridajPristupovePrava(string meno , string prava, string menoZadavatel); // ==== meno si môžem potom dohladat;
-    bool upravPrava(string nazovTab, string menoPouzivatela, string data_prava); // ==== ja si na strane Servera okontrolujem Zadavatela
+    bool pridajPristupovePrava(string meno , string prava);
+    bool upravPrava(string menoPouzivatela, string data_prava);
 
-    bool pridajZaznam(); //==== funkcia sa spyta na nazvy a typy dat
-    bool aktualizovatZaznam(); // === potrebuje nazov Tab, ID riadku, nazovStlpca, data ====== urobit aj funkciu pre upravu celeho riadku naraz
-    bool zmazatZaznam(string nazovTab,int IDriadku); // ====== pokial je user zada 0 vymaze vsetky zaznamy, urobit kontrolu prav usera pomocou getPravaUser;
-    string vypisatZaznamiNeutriedene(string nazovTab);
+    bool pridajZaznam(string zaznam);
+    bool aktualizovatZaznam(string zaznam); // === potrebuje nazov Tab, ID riadku, nazovStlpca, data ====== urobit aj funkciu pre upravu celeho riadku naraz
+    bool zmazatZaznam(int IDriadku); // ====== pokial je user zada 0 vymaze vsetky zaznamy, urobit kontrolu prav usera pomocou getPravaUser;
+    string vypisatZaznamiNeutriedene();
     string vypisatZaznamiUtriedene(int stlpec); // (podla dakeho stlpca) ===== musi sa najprv pytat na to ake typy ma a potom sa opyta usera podla kt z nich chce triedit
 
-
+    string getMenaSTabulky();
+    string getTypySTabulky();
 
 private:
     Klient* klient;

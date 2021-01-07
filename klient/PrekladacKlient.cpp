@@ -4,6 +4,8 @@
 
 #include "PrekladacKlient.h"
 
+using namespace std;
+
 PrekladacKlient::PrekladacKlient(User* parUser, Klient* parKlient) {
     user = parUser;
     klient = parKlient;
@@ -24,7 +26,7 @@ void PrekladacKlient::posliSpravu(string sprava) {
 }
 
 /*
- * prime odpoved na spravu ""
+ * prime odpoved na spravu
  */
 string PrekladacKlient::primiOdpovedNaSpravu(string sprava) {
     char* poslat = (char*)"";
@@ -32,15 +34,12 @@ string PrekladacKlient::primiOdpovedNaSpravu(string sprava) {
 
     string odpoved;
     odpoved = klient->precitaj(poslat);
-    if(odpoved != "x"){ }
 
+    int spravaLength = sprava.size();
+    odpoved = odpoved.substr(spravaLength, odpoved.size() - spravaLength - 1);
 
     return odpoved;
 }
-
-
-
-
 
 /*
  * vrati string obsahujuci vytvorene Tabulky
@@ -48,17 +47,18 @@ string PrekladacKlient::primiOdpovedNaSpravu(string sprava) {
  */
 string PrekladacKlient::vytvorene_Tab(string userName) {
     string sprava = "mojt,";
-    string odpoved;
-
     sprava += userName;
 
     posliSpravu(sprava);
+
+    string odpoved;
     odpoved = primiOdpovedNaSpravu(sprava);
 
     return odpoved;
 }
 
-/* zapise do usera v kt tabulke je
+/*
+ * zapise do usera v kt tabulke je
  * kod:prst
  */
 string PrekladacKlient::pristupene_Tab(string userName) {
@@ -74,10 +74,11 @@ string PrekladacKlient::pristupene_Tab(string userName) {
 }
 
 /*
- * vytT
+ * vytvori Tabulku s zadanymi param
+ * vytt
  */
 bool PrekladacKlient::vytvorTab(string meno, string dataTypy, string dataNazvy) {
-    string sprava = "prst,";
+    string sprava = "vytt,";
     string odpoved;
 
     sprava += meno;
@@ -87,70 +88,193 @@ bool PrekladacKlient::vytvorTab(string meno, string dataTypy, string dataNazvy) 
     posliSpravu(sprava);
     odpoved = primiOdpovedNaSpravu(sprava);
 
-    // TODO rozlustenie odpovedi
-
-    return odpoved;
-}
-
-/*
- * otvT
- */
-bool PrekladacKlient::otvorTab(string nazovTab) {
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
     return false;
 }
 
 /*
+ * otvt
+ */
+bool PrekladacKlient::otvorTab(string nazovTab) {
+    string sprava = "otvt,";
+    sprava += nazovTab;
+
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        user->setMenoUpravovanejTab(nazovTab);
+        return true;
+    }
+    return false;
+}
+
+/* vymaze tabulku
  * kod:zmzt
  */
 bool PrekladacKlient::zmazTab(string nazovTab, string userName) {
+    string sprava = "zmzt,";
+    sprava += nazovTab;
+
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        user->setMenoUpravovanejTab(nullptr);
+        return true;
+    }
     return false;
 }
 
-/*
+/* prida pristupove prava k tabulke
  * kod:prpp
  */
-bool PrekladacKlient::pridajPristupovePrava(string meno, string prava, string menoZadavatel) {
+bool PrekladacKlient::pridajPristupovePrava(string meno, string prava) {
+    string sprava = "prpp,";
+    sprava += meno;
+    sprava += prava;
+
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
     return false;
 }
 
 /*
  * kod:uppr
  */
-bool PrekladacKlient::upravPrava(string nazovTab, string menoPouzivatela, string data_prava) {
-    return false;
-}
+bool PrekladacKlient::upravPrava(string menoPouzivatela, string data_prava) {
+    string sprava = "uppp,";
+    sprava += user->getMenoUpravovanejTab();
+    sprava += menoPouzivatela;
+    sprava += data_prava;
+
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
+    return false;}
 
 /*
  * kod:przz
  */
-bool PrekladacKlient::pridajZaznam() {
+bool PrekladacKlient::pridajZaznam(string zaznam) {
+    string sprava = "przz." + user->getMenoUpravovanejTab() + zaznam;
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
     return false;
 }
 
 /*
  * kod:akzz
  */
-bool PrekladacKlient::aktualizovatZaznam() {
+bool PrekladacKlient::aktualizovatZaznam(string zaznam) {
+    string sprava = "akzz." + user->getMenoUpravovanejTab() + zaznam;
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
     return false;
 }
 
 /*
  * kod:zmzz
  */
-bool PrekladacKlient::zmazatZaznam(string nazovTab, int IDriadku) {
+bool PrekladacKlient::zmazatZaznam(int IDriadku) {
+    string sprava = "zmzz." + user->getMenoUpravovanejTab() + to_string(IDriadku);
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
     return false;
 }
 
 /*
  * kod:vzzn
  */
-string PrekladacKlient::vypisatZaznamiNeutriedene(string nazovTab) {
-    return std::__cxx11::string();
+string PrekladacKlient::vypisatZaznamiNeutriedene() {
+    string sprava = "vzzn." + user->getMenoUpravovanejTab();
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    return odpoved;
 }
 
 /*
  * kod:vzzu
  */
 string PrekladacKlient::vypisatZaznamiUtriedene(int stlpec) {
-    return std::__cxx11::string();
+    string sprava = "vzzu." + user->getMenoUpravovanejTab();
+    sprava += to_string(stlpec);
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    return odpoved;
+}
+
+/*
+ * kod:getm
+ */
+string PrekladacKlient::getMenaSTabulky() {
+    string sprava = "getm." + user->getMenoUpravovanejTab();
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    return odpoved;
+}
+
+/*
+ * kod:gett
+ */
+string PrekladacKlient::getTypySTabulky() {
+    string sprava = "gett." + user->getMenoUpravovanejTab();
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    return odpoved;
 }

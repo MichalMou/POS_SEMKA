@@ -73,7 +73,7 @@ string Klient::precitaj(string query) {
             return zaznam;
         }
     }
-    return "x";
+    return "Error odpoved na query sa nenasla!";
 }
 
 vector<string> Klient::getZoznamSprav() {
