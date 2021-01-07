@@ -93,7 +93,3 @@ pthread_t Klient::getSprava() {
 }
 
 #undef BUFF_N
-
-/*
- * // TODO dorobit rozdelenie sprav ked su priliz velke, ak bude na to cas
- */

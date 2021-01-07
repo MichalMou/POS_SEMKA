@@ -6,16 +6,15 @@ using namespace std;
 #define BUFF_N 1024
 
 /*
- * TODO robi iba s vlaknom ktore mu bolo dane preto mame vlakno+primacSprav pre kazdy socket
- * funkcionalita vlakna
- * bude citat prichadzajuce spravy a davať ich prekladacu a potom posle vysledok naspet
+ * robi iba s vlaknom ktore mu bolo dane preto mame vlakno+primacSprav pre kazdy socket
  */
 void* primacSprav(void* parameter) {
     Server *server = reinterpret_cast<Server *>(parameter);
     char buffer[BUFF_N];
 
     /* ked sa vztvori socket vytvori sa aj toto vlakno, takze posledny socket je zatial volny
-     * a toto vlakno si ho zoberie a bude pren pocuvat */
+     * a toto vlakno si ho zoberie a bude pren pocuvat
+     */
     int socket = server->getKlienti_t()->back();
 
     do {
@@ -23,13 +22,11 @@ void* primacSprav(void* parameter) {
         int n = read(socket, buffer, BUFF_N - 1);
         if (n > 0){
             pthread_mutex_lock(server->getMutexPrekladac());
-            /*
-             * na testovanie //// cout << "mam spravu: " << buffer << endl;
-             * TODO funkcionalita
-             * daky string odpoved = server.getPrekladac().prelozaVykonajTabOperaciu(buffer
-             * TODO vrati odpoved
-             * server->posliSpravu(newSock, odpoved);
-             */
+
+            server->getPrekladac()->rozoznaj(buffer);
+            //TODO dat string do char *
+            server->posliSpravu(socket, server->getPrekladac()->rozoznaj(buffer));
+
             pthread_mutex_unlock(server->getMutexPrekladac());
         }
     }
@@ -89,19 +86,6 @@ Server::Server(int port) {
     // thread co obsluhuje vytvorenie novych spojeni
     pthread_create(&primac_spojeni,NULL, connectSpojenie, this);
 
-
-    // TODO mutex a funkcionalita
-    /* socket je priamo UID
-
-     *
-     * 1.1thread bude pocuvat a robit nove spojenia + novy thread ked sa niekto pripoji :)
-     *
-     * 2.zoznam threadov pre klientov :)
-     *
-     * 3.ak je sprava privelka napisat ze zly prikaz a sprava je privelka, teoreticky to moze robit aj prekladac :)
-     *
-     * 4.jeden prekladac a jedna DB pre vsetky vlakna obsluhovany mutexom
-     */
 }
 
 /*
@@ -130,15 +114,8 @@ void Server::pridajKlienta(int klient) {
  * odosleme spravu naspat
  */
 void Server::posliSpravu(int klientSock, char * sprava) {
-    // TODO osetrit ze sprava je max velkosti buffer
+    // osetrit ze sprava je max velkosti buffer ak bude cas
     int n = write(klientSock,sprava,strlen(sprava) + 1);
-}
-
-/*
- * sprava sa preda prekladacu a vykona v DB, potom sa vrati string vysledok
- */
-string Server::funkcionalitaDB(string sprava) {
-    return std::__cxx11::string();
 }
 
 const vector<int> *Server::getKlienti() {
@@ -159,6 +136,10 @@ vector<pthread_t>* Server::getKlienti_t() {
 
 pthread_mutex_t *Server::getMutexPrekladac() {
     return &(this->mutex_prekladac);
+}
+
+PrekladacServer *Server::getPrekladac() {
+    return &(this->prekladac);
 }
 
 

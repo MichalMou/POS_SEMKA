@@ -63,11 +63,11 @@ string PrekladacKlient::vytvorene_Tab(string userName) {
  */
 string PrekladacKlient::pristupene_Tab(string userName) {
     string sprava = "prst,";
-    string odpoved;
-
     sprava += userName;
 
     posliSpravu(sprava);
+
+    string odpoved;
     odpoved = primiOdpovedNaSpravu(sprava);
 
     return odpoved;
@@ -77,15 +77,19 @@ string PrekladacKlient::pristupene_Tab(string userName) {
  * vytvori Tabulku s zadanymi param
  * vytt
  */
-bool PrekladacKlient::vytvorTab(string meno, string dataTypy, string dataNazvy) {
+bool PrekladacKlient::vytvorTab(string meno, string dataTypy, string dataNazvy, int pocStlpcov) {
     string sprava = "vytt,";
-    string odpoved;
-
     sprava += meno;
+    sprava += ",";
     sprava += dataTypy;
+    sprava += ",";
     sprava += dataNazvy;
+    sprava += ",";
+    sprava += pocStlpcov;
 
     posliSpravu(sprava);
+
+    string odpoved;
     odpoved = primiOdpovedNaSpravu(sprava);
 
     if(odpoved.compare("true") == 0)
@@ -141,6 +145,7 @@ bool PrekladacKlient::zmazTab(string nazovTab, string userName) {
 bool PrekladacKlient::pridajPristupovePrava(string meno, string prava) {
     string sprava = "prpp,";
     sprava += meno;
+    sprava += ",";
     sprava += prava;
 
     posliSpravu(sprava);
@@ -161,7 +166,9 @@ bool PrekladacKlient::pridajPristupovePrava(string meno, string prava) {
 bool PrekladacKlient::upravPrava(string menoPouzivatela, string data_prava) {
     string sprava = "uppp,";
     sprava += user->getMenoUpravovanejTab();
+    sprava += ",";
     sprava += menoPouzivatela;
+    sprava += ",";
     sprava += data_prava;
 
     posliSpravu(sprava);
@@ -179,7 +186,9 @@ bool PrekladacKlient::upravPrava(string menoPouzivatela, string data_prava) {
  * kod:przz
  */
 bool PrekladacKlient::pridajZaznam(string zaznam) {
-    string sprava = "przz." + user->getMenoUpravovanejTab() + zaznam;
+    string sprava = "przz," + user->getMenoUpravovanejTab() + "," + zaznam;
+    sprava += ",";
+    sprava += user->getMeno();
     posliSpravu(sprava);
 
     string odpoved;
@@ -196,7 +205,9 @@ bool PrekladacKlient::pridajZaznam(string zaznam) {
  * kod:akzz
  */
 bool PrekladacKlient::aktualizovatZaznam(string zaznam) {
-    string sprava = "akzz." + user->getMenoUpravovanejTab() + zaznam;
+    string sprava = "akzz," + user->getMenoUpravovanejTab() + "," + zaznam;
+    sprava += ",";
+    sprava += user->getMeno();
     posliSpravu(sprava);
 
     string odpoved;
@@ -213,7 +224,9 @@ bool PrekladacKlient::aktualizovatZaznam(string zaznam) {
  * kod:zmzz
  */
 bool PrekladacKlient::zmazatZaznam(int IDriadku) {
-    string sprava = "zmzz." + user->getMenoUpravovanejTab() + to_string(IDriadku);
+    string sprava = "zmzz," + user->getMenoUpravovanejTab() + "," + to_string(IDriadku);
+    sprava += ",";
+    sprava += user->getMeno();
     posliSpravu(sprava);
 
     string odpoved;
@@ -230,7 +243,9 @@ bool PrekladacKlient::zmazatZaznam(int IDriadku) {
  * kod:vzzn
  */
 string PrekladacKlient::vypisatZaznamiNeutriedene() {
-    string sprava = "vzzn." + user->getMenoUpravovanejTab();
+    string sprava = "vzzn," + user->getMenoUpravovanejTab();
+    sprava += ",";
+    sprava += user->getMeno();
     posliSpravu(sprava);
 
     string odpoved;
@@ -243,8 +258,10 @@ string PrekladacKlient::vypisatZaznamiNeutriedene() {
  * kod:vzzu
  */
 string PrekladacKlient::vypisatZaznamiUtriedene(int stlpec) {
-    string sprava = "vzzu." + user->getMenoUpravovanejTab();
+    string sprava = "vzzu," + user->getMenoUpravovanejTab() + ",";
     sprava += to_string(stlpec);
+    sprava += ",";
+    sprava += user->getMeno();
     posliSpravu(sprava);
 
     string odpoved;
@@ -256,7 +273,7 @@ string PrekladacKlient::vypisatZaznamiUtriedene(int stlpec) {
 /*
  * kod:getm
  */
-string PrekladacKlient::getMenaSTabulky() {
+string PrekladacKlient::getMenaTabulky() {
     string sprava = "getm." + user->getMenoUpravovanejTab();
     posliSpravu(sprava);
 
@@ -269,7 +286,7 @@ string PrekladacKlient::getMenaSTabulky() {
 /*
  * kod:gett
  */
-string PrekladacKlient::getTypySTabulky() {
+string PrekladacKlient::getTypyTabulky() {
     string sprava = "gett." + user->getMenoUpravovanejTab();
     posliSpravu(sprava);
 
