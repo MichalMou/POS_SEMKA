@@ -19,17 +19,20 @@ string PrekladacServer::rozoznaj(string sprava) {
 
 
     if (spravaVektor[0] == "mojt"){
-        // TODO ako mi to vracia tabulky
         odpoved += vytvoreneTabUsera(spravaVektor[1]);
 
     } else if (spravaVektor[0] == "prst") {
         odpoved += pristupneTabUsera(spravaVektor[1]);
 
     } else if (spravaVektor[0] == "vytt") {
-        odpoved += vytvorTab(spravaVektor[1],spravaVektor[2],spravaVektor[3],spravaVektor[4]);
+        odpoved += vytvorTab(spravaVektor[1],spravaVektor[2],spravaVektor[3],spravaVektor[4],stoi(spravaVektor[5]));
 
     } else if (spravaVektor[0] == "otvt") {
-        // TODO existuje tabulka ?
+        if(databaza.exists(spravaVektor[1])){
+            odpoved += "true";
+        } else {
+            odpoved += "false";
+        }
 
     } else if (spravaVektor[0] == "zmzt") {
         odpoved += zmazTab(spravaVektor[1]);
@@ -41,36 +44,45 @@ string PrekladacServer::rozoznaj(string sprava) {
         odpoved += upravPrava(spravaVektor[1],spravaVektor[2],spravaVektor[3]);
 
     } else if (spravaVektor[0] == "przz") {
-        odpoved += pridajZaznam(spravaVektor[1],spravaVektor[2]);
+        odpoved += pridajZaznam(spravaVektor[1],spravaVektor[2],spravaVektor[3]);
 
     } else if (spravaVektor[0] == "akzz") {
-        odpoved += aktualizujZaznam(spravaVektor[1],stoi(spravaVektor[2]),spravaVektor[3],spravaVektor[4]);
+        odpoved += aktualizujZaznam(spravaVektor[1],stoi(spravaVektor[2]),spravaVektor[3],spravaVektor[4],spravaVektor[5]);
+
+    } else if (spravaVektor[0] == "aczz") {
+        odpoved += aktualizujCelyZaznam(spravaVektor[1],stoi(spravaVektor[2]),spravaVektor[3],spravaVektor[4]);
 
     } else if (spravaVektor[0] == "zmzz") {
         odpoved += zmazatZaznam(spravaVektor[1],stoi(spravaVektor[2]),spravaVektor[3]);
 
     } else if (spravaVektor[0] == "vzzn") {
-        odpoved += vypisatZaznamiNeutriedene(spravaVektor[1]);
+        odpoved += vypisatZaznamiNeutriedene(spravaVektor[1],spravaVektor[2]);
 
     } else if (spravaVektor[0] == "vzzu") {
-        odpoved += vypisatZaznamiUtriedene(spravaVektor[1], stoi(spravaVektor[2]));
+        odpoved += vypisatZaznamiUtriedene(spravaVektor[1], stoi(spravaVektor[2]),spravaVektor[3]);
 
     } else if (spravaVektor[0] == "getm") {
         odpoved += getTabNazvy(spravaVektor[1]);
 
     } else if (spravaVektor[0] == "gett") {
         odpoved += getTabTypy(spravaVektor[1]);
+
+    } else if (spravaVektor[0] == "regi") {
+        odpoved += registruj(spravaVektor[1], spravaVektor[2]);
+
+    } else if (spravaVektor[0] == "prih") {
+        odpoved += prihlas(spravaVektor[1], spravaVektor[2]);
     }
 
     return odpoved;
 }
 
 string PrekladacServer::getTabNazvy(string menoTab) {
-    // TODO treba funkciu povedat Mirovi
+    return tabulka.getNazvyStlpcov(menoTab);
 }
 
 string PrekladacServer::getTabTypy(string menoTab) {
-    //TODO treba funkciu povedat Mirovi
+    return tabulka.getDatTypyStlpcov(menoTab);
 }
 
 string PrekladacServer::getTabPrava(string menoTab,string menoUser) {
@@ -82,8 +94,7 @@ string PrekladacServer::vytvoreneTabUsera(string menoUser) {
 }
 
 string PrekladacServer::pristupneTabUsera(string menoUser) {
-    //TODO treba sa opytat v akom formate to vypisuje tabulku
-    return databaza.
+    return databaza.getZoznamTabuliekPouzivatelaSPristupom(menoUser);
 }
 
 string PrekladacServer::vytvorTab(string nazovTab, string nazvyStlpcov, string nazovTypov, string menoUser, int pocetStlpcov) {
@@ -115,26 +126,162 @@ string PrekladacServer::pridajPrava(string menoTab, string menoUser, string data
 }
 
 string PrekladacServer::pridajZaznam(string nazovTab, string data, string menoUser) {
-    //TODO skontroluj prava
     string pristup = databaza.getPristup(nazovTab,menoUser);
-    tabulka.pridajZaznam(nazovTab,data);
+    vector<string> pravaVektor;
+    stringstream ss(pristup);
 
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, ',');
+        pravaVektor.push_back(substr);
+    }
+
+    if(pravaVektor[0] == "1"){
+        tabulka.pridajZaznam(nazovTab,data);
+        return "Zaznam bol uspesne pridany.";
+    } else {
+        return "Nemas prava pridat zaznam.";
+    }
 }
 
 string PrekladacServer::aktualizujZaznam(string nazovTab, int IDriadku, string nazovStlpec, string data, string menoUser) {
+    string pristup = databaza.getPristup(nazovTab,menoUser);
+    vector<string> pravaVektor;
+    stringstream ss(pristup);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, '|');
+        pravaVektor.push_back(substr);
+    }
+
+    if(pravaVektor[0] == "1"){
+        if(tabulka.aktualizujZaznam(nazovTab,IDriadku,nazovStlpec,data)){
+            return "Zaznam bol uspesne aktualizovany.";
+        } else {
+            return "Error nezadal si spravne parametre.";
+        }
+    } else {
+        return "Error nemas prava pridat zaznam.";
+    }
+}
+
+string PrekladacServer::aktualizujCelyZaznam(string nazovTab, int IDriadku, string data, string menoUser) {
+    // separujem data ,
+    string pristup = databaza.getPristup(nazovTab,menoUser);
+    vector<string> pravaVektor;
+    stringstream ss(pristup);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, ',');
+        pravaVektor.push_back(substr);
+    }
+
+    if(pravaVektor[0] == "1"){
+        vector<string> dataVektor;
+        stringstream ssdata(data);
+        while (ssdata.good()) {
+            string substr;
+            getline(ssdata, substr, '.');
+            dataVektor.push_back(substr);
+        }
+
+        string menaStlpcov = tabulka.getNazvyStlpcov(nazovTab);
+        vector<string> menaVektor;
+        stringstream ssmena(menaStlpcov);
+        while (ssmena.good()) {
+            string substr;
+            getline(ssmena, substr, ',');
+            menaVektor.push_back(substr);
+        }
+
+        for(int i = 0; i < menaVektor.size(); i++){
+            tabulka.aktualizujZaznam(nazovTab,IDriadku,menaVektor[i],dataVektor[i]);
+        }
+        return "Zaznam bol uspesne aktualizovany.";
+    } else {
+        return "Error nemas prava pridat zaznam.";
+    }
 }
 
 string PrekladacServer::zmazatZaznam(string nazovTab, int IDriadku, string menoUser) {
+    string pristup = databaza.getPristup(nazovTab,menoUser);
+    vector<string> pravaVektor;
+    stringstream ss(pristup);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, '|');
+        pravaVektor.push_back(substr);
+    }
 
+    if(pravaVektor[3] == "1")
+    {
+        tabulka.vymazZaznam(nazovTab,IDriadku);
+        return "Zaznam uspesne vymazany";
+    }
+    return "Error nemas prava na vymazanie zaznamu.";
 }
 
 string PrekladacServer::vypisatZaznamiNeutriedene(string nazovTab, string menoUser) {
-    // TODO je tam int ze kolko riadkov dat vypise
+    string pristup = databaza.getPristup(nazovTab, menoUser);
+    vector<string> pravaVektor;
+    stringstream ss(pristup);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, '|');
+        pravaVektor.push_back(substr);
+    }
 
-
+    if (pravaVektor[3] == "1"){
+        return tabulka.vypisNeutriedenejTabulky(nazovTab, 10);
+    } else {
+        return "Error nemas prava na vypisanie tabulky.";
+    }
 }
 
 string PrekladacServer::vypisatZaznamiUtriedene(string nazovTab, int stlpec, string menoUser) {
+    string pristup = databaza.getPristup(nazovTab, menoUser);
+    vector<string> pravaVektor;
+    stringstream ss(pristup);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, '|');
+        pravaVektor.push_back(substr);
+    }
 
+    if (pravaVektor[3] == "1"){
+        string menaStlpcov = tabulka.getNazvyStlpcov(nazovTab);
+        vector<string> menaVektor;
+        stringstream ssmena(menaStlpcov);
+        while (ssmena.good()) {
+            string substr;
+            getline(ssmena, substr, ',');
+            menaVektor.push_back(substr);
+        }
+
+        return tabulka.vypisUtriedenejTabulky(nazovTab,menaVektor[stlpec],10);
+    } else {
+        return "Error nemas prava na vypisanie tabulky.";
+    }
+}
+
+string PrekladacServer::registruj(string menoUser, string heslo) {
+    string zapis = menoUser + "," + heslo;
+    if (databaza.jeUzivatel(zapis) > -1)
+    {
+        return "Error user uz existuje.";
+    } else {
+        databaza.zapisPouzivatela(zapis);
+        return "Registracia uspesna.";
+    }
+}
+
+string PrekladacServer::prihlas(string menoUser, string heslo) {
+    string zapis = menoUser + "," + heslo;
+    if (databaza.jeUzivatel(zapis) > -1)
+    {
+        return to_string(databaza.jeUzivatel(zapis));
+    } else {
+        return "-1";
+    }
 }
 

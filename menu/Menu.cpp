@@ -78,6 +78,8 @@ void Menu::spustiKlienta() {
     }
     while(vstup != 0);
 
+    delete klient;
+
 }
 
 void Menu::registracia() {
@@ -100,12 +102,11 @@ void Menu::registracia() {
     }
     while (vstup != 1 && vstup != 2);
 
-    // TODO registracia
+    cout << prekladacKlient->registruj(login,to_string(heslo)) << endl;
 
 }
 
 void Menu::prihlasenie() {
-    // TODO moznost vratit sa
     string login;
     int heslo;
     int UID = -1;
@@ -117,14 +118,9 @@ void Menu::prihlasenie() {
         cout << "Zadaj heslo:" << endl;
         cin >> heslo;
 
-        //TODO poslat login na Server ak acc existuje vypitat UID a zapisat ho
-
-
-        if(UID >= 0) {
-            prihlasenie = true;
-        }
+        UID = stoi(prekladacKlient->prihlas(login,to_string(heslo)));
     }
-    while(prihlasenie); // TODO ak je prihlasenie prejde moze ist dalej
+    while(UID >= 0);
 
     if(UID >= 0 ){
         user = new User(login, to_string(heslo), UID);
@@ -152,9 +148,14 @@ void Menu::vytvorTab() {
         for(int i = 0; i < pocetStlpcov; i++){
             string nazov;
             int typ = 99;
-            cout << "Ako sa ma volat prvy stlpec? " << endl;
+
+            cout << "Ako sa ma volat stlpec? " << endl;
             cin >> nazov;
-            // TODO while
+            if(i > 0) {
+                nazvyStlpcov += "|";
+            }
+            nazvyStlpcov += nazov;
+
             do {
                 if(typ != 99)
                 {
@@ -170,58 +171,128 @@ void Menu::vytvorTab() {
             } while (typ != 0 && typ != 1 && typ != 2 && typ != 3 && typ != 4);
 
             if(i > 0) {
-                nazvyStlpcov += ",";
+                typStlpcu += "|";
             }
 
             switch(typ){
                 case 0:
-                    nazvyStlpcov += "int";
+                    typStlpcu += "int";
                     break;
                 case 1:
-                    nazvyStlpcov += "double";
+                    typStlpcu += "double";
                     break;
                 case 2:
-                    nazvyStlpcov += "bool";
+                    typStlpcu += "bool";
                     break;
                 case 3:
-                    nazvyStlpcov += "string";
+                    typStlpcu += "string";
                     break;
                 case 4:
-                    nazvyStlpcov += "date";
+                    typStlpcu += "date";
                     break;
 
             }
         }
     }
+    if(prekladacKlient->vytvorTab(nazovTabulky,typStlpcu,nazvyStlpcov,pocetStlpcov)) {
+        cout << "Tabulka uspesne vytvorena." << endl;
+    } else {
+        cout << "Tabulka sa nemohla vytvorit, nieco sa pokazilo." << endl;
+    }
 
-    // TODO prekladac vytvorTab
 }
 
 void Menu::vypisVytvoreneTab() {
+    string menoPP, vsetkyPrava, vymazTabMeno;
+    int pravo = 99;
     int vstup = 99;
     do {
         vstup =99;
         cout << "===== Vytvoril si tieto tabulky ======" << endl;
-        // TODO Prekladac vypis vytvorene Tab
+        string vytvoreneTab = prekladacKlient->vytvorene_Tab(user->getMeno());
+
+        cout << vytvoreneTab << endl;
         do {
             cout << "1. pridat niekomu pristupove prava k tabulke" << endl;
             cout << "2. vyber tabulku" << endl;
             cout << "3. zmaz tabulku" << endl;
             cout << "4. exit" << endl;
             cin >> vstup;
-
         } while( vstup != 1 && vstup != 2 && vstup != 3 && vstup != 4);
 
-        // TODO dorobit case
         switch(vstup) {
             case 1:
+                cout << "Zadaj login uzivatela komu chces pridat prava:" << endl;
+                cin >> menoPP;
 
+                do {
+                    cout << "Chces pridat pravo pridavat zaznamy?" << endl;
+                    cout << "1. ano" << endl;
+                    cout << "2. nie" << endl;
+                    cin >> pravo;
+
+                    if(pravo == 1){
+                        vsetkyPrava += "1,";
+                    } else if (pravo == 2) {
+                        vsetkyPrava += "0,";
+                    }
+                } while (pravo != 1 && pravo != 2);
+                pravo = 99;
+
+                do {
+                    cout << "Chces pridat pravo aktualizovat zaznamy?" << endl;
+                    cout << "1. ano" << endl;
+                    cout << "2. nie" << endl;
+                    cin >> pravo;
+
+                    if(pravo == 1){
+                        vsetkyPrava += "1,";
+                    } else if (pravo == 2) {
+                        vsetkyPrava += "0,";
+                    }
+                } while (pravo != 1 && pravo != 2);
+                pravo = 99;
+
+                do {
+                    cout << "Chces pridat pravo mazat zaznamy?" << endl;
+                    cout << "1. ano" << endl;
+                    cout << "2. nie" << endl;
+                    cin >> pravo;
+
+                    if(pravo == 1){
+                        vsetkyPrava += "1,";
+                    } else if (pravo == 2) {
+                        vsetkyPrava += "0,";
+                    }
+                } while (pravo != 1 && pravo != 2);
+                pravo = 99;
+
+                do {
+                    cout << "Chces pridat pravo vypisat zaznamy?" << endl;
+                    cout << "1. ano" << endl;
+                    cout << "2. nie" << endl;
+                    cin >> pravo;
+
+                    if(pravo == 1){
+                        vsetkyPrava += "1";
+                    } else if (pravo == 2) {
+                        vsetkyPrava += "0";
+                    }
+                } while (pravo != 1 && pravo != 2);
+                prekladacKlient->pridajPristupovePrava(menoPP, vsetkyPrava);
                 break;
-            case 2:
 
+            case 2:
+                // TODO vypisat moznosti tabulky
                 break;
             case 3:
-
+                cout << "Ktoru tabulku chces vymazat?" << endl;
+                cin >> vymazTabMeno;
+                if(prekladacKlient->zmazTab(vymazTabMeno, user->getMeno())){
+                    cout << "Tabulka uspesne vymazana." << endl;
+                } else {
+                    cout << "Error, chyba vo vymazani tabulky, nezadal si spravny nazov" << endl;
+                }
                 break;
         }
     } while (vstup != 4);
@@ -233,7 +304,9 @@ void Menu::vypisPristupneTab() {
     do {
         vstup =99;
         cout << "===== Mas pristup k tymto tabulkam ======" << endl;
-        // TODO Prekladac vypis vytvorene Tab
+        // TODO uprav vypis vytvorene Tab
+        string tabulky = prekladacKlient->pristupene_Tab(user->getMeno());
+
         do {
             cout << "1. vyber tabulku" << endl;
             cout << "2. exit" << endl;
@@ -241,10 +314,13 @@ void Menu::vypisPristupneTab() {
 
         } while(vstup != 1 && vstup != 2);
 
-        // TODO dorobit case
         switch(vstup) {
             case 1:
-
+                string nazovTab;
+                cout << "Zadaj nazov tabulky na upravovanie." << endl;
+                cin >> nazovTab;
+                user->setMenoUpravovanejTab(nazovTab);
+                UpravaTab();
                 break;
         }
     } while (vstup != 2);
@@ -254,8 +330,6 @@ void Menu::UpravaTab() {
     int vstup = 99;
     do {
         vstup =99;
-        cout << "===== Mas pristup k tymto tabulkam ======" << endl;
-        // TODO Prekladac vypis vytvorene Tab
         do {
             cout << "1. Pridat zaznam" << endl;
             cout << "2. Aktualizovat zaznam" << endl;
@@ -267,10 +341,31 @@ void Menu::UpravaTab() {
 
         } while(vstup != 1 && vstup != 2 && vstup != 3 && vstup != 4 && vstup != 5 && vstup != 6);
 
-        // TODO dorobit case
         switch(vstup) {
             case 1:
                 // TODO pridat zaznam
+                string zaznam, menaTab, typTab;
+                vector<string> menaStlpcov, typyStlpcov;
+                menaTab = prekladacKlient->getMenaTabulky();
+                typTab = prekladacKlient->getTypyTabulky();
+
+                stringstream ss(menaTab);
+                while (ss.good()) {
+                    string substr;
+                    getline(ss, substr, ',');
+                    menaStlpcov.push_back(substr);
+                }
+
+                stringstream ssTypy(menaTab);
+                while (ssTypy.good()) {
+                    string substr;
+                    getline(ssTypy, substr, ',');
+                    typyStlpcov.push_back(substr);
+                }
+
+                for()
+
+                prekladacKlient->pridajZaznam(zaznam);
                 break;
             case 2:
                 // TODO Aktualizovat zaznam
@@ -286,6 +381,10 @@ void Menu::UpravaTab() {
                 break;
         }
     } while (vstup != 6);
+}
+
+void Menu::prihMenu() {
+
 }
 
 

@@ -19,7 +19,7 @@ public:
     Server(int port);
     ~Server();
     void pridajKlienta(int klient);
-    void posliSpravu(int klient, char* sprava);
+    static void posliSpravu(int klient, const char* sprava);
 
     int getSocketFD() const;
     const vector<int>* getKlienti();

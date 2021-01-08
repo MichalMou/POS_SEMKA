@@ -36,7 +36,7 @@ string PrekladacKlient::primiOdpovedNaSpravu(string sprava) {
     odpoved = klient->precitaj(poslat);
 
     int spravaLength = sprava.size();
-    odpoved = odpoved.substr(spravaLength, odpoved.size() - spravaLength - 1);
+    odpoved = odpoved.substr(spravaLength + 1, odpoved.size() - spravaLength - 1);
 
     return odpoved;
 }
@@ -81,9 +81,11 @@ bool PrekladacKlient::vytvorTab(string meno, string dataTypy, string dataNazvy, 
     string sprava = "vytt,";
     sprava += meno;
     sprava += ",";
+    sprava += dataNazvy;
+    sprava += ",";
     sprava += dataTypy;
     sprava += ",";
-    sprava += dataNazvy;
+    sprava += user->getMeno();
     sprava += ",";
     sprava += pocStlpcov;
 
@@ -204,8 +206,32 @@ bool PrekladacKlient::pridajZaznam(string zaznam) {
 /*
  * kod:akzz
  */
-bool PrekladacKlient::aktualizovatZaznam(string zaznam) {
-    string sprava = "akzz," + user->getMenoUpravovanejTab() + "," + zaznam;
+bool PrekladacKlient::aktualizovatZaznam(string zaznam, int cisloRiadku, int cisloStlpca) {
+    string sprava = "akzz," + user->getMenoUpravovanejTab() + "," + to_string(cisloRiadku);
+    sprava += to_string(cisloStlpca);
+    sprava += ",";
+    sprava += zaznam;
+    sprava += ",";
+    sprava += user->getMeno();
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    if(odpoved.compare("true") == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+/*
+ * kod:aczz
+ */
+bool PrekladacKlient::aktualizovatCelyZaznam(string zaznam, int cisloRiadku) {
+    string sprava = "aczz," + user->getMenoUpravovanejTab() + "," + to_string(cisloRiadku);
+    sprava += ",";
+    sprava += zaznam;
     sprava += ",";
     sprava += user->getMeno();
     posliSpravu(sprava);
@@ -274,7 +300,7 @@ string PrekladacKlient::vypisatZaznamiUtriedene(int stlpec) {
  * kod:getm
  */
 string PrekladacKlient::getMenaTabulky() {
-    string sprava = "getm." + user->getMenoUpravovanejTab();
+    string sprava = "getm," + user->getMenoUpravovanejTab();
     posliSpravu(sprava);
 
     string odpoved;
@@ -287,9 +313,39 @@ string PrekladacKlient::getMenaTabulky() {
  * kod:gett
  */
 string PrekladacKlient::getTypyTabulky() {
-    string sprava = "gett." + user->getMenoUpravovanejTab();
+    string sprava = "gett," + user->getMenoUpravovanejTab();
     posliSpravu(sprava);
 
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    return odpoved;
+}
+
+/*
+ * kod:regi
+ */
+string PrekladacKlient::registruj(string menoUser, string heslo) {
+    string sprava = "regi," + menoUser;
+    sprava += ",";
+    sprava += heslo;
+    posliSpravu(sprava);
+
+    string odpoved;
+    odpoved = primiOdpovedNaSpravu(sprava);
+
+    return odpoved;
+}
+
+/*
+ * kod:prih
+ */
+string PrekladacKlient::prihlas(string menoUser, string heslo) {
+    string sprava = "prih," + menoUser;
+
+    posliSpravu(sprava);
+    sprava += ",";
+    sprava += heslo;
     string odpoved;
     odpoved = primiOdpovedNaSpravu(sprava);
 

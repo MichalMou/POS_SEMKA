@@ -22,6 +22,10 @@ public:
     void posliSpravu(string sprava);
     string primiOdpovedNaSpravu(string sprava);
 
+    string registruj(string menoUser, string heslo);
+    string prihlas(string menoUser, string heslo);
+
+
     string vytvorene_Tab(string userName);
     string pristupene_Tab(string userName);
 
@@ -33,10 +37,11 @@ public:
     bool upravPrava(string menoPouzivatela, string data_prava);
 
     bool pridajZaznam(string zaznam);
-    bool aktualizovatZaznam(string zaznam); // === potrebuje nazov Tab, ID riadku, nazovStlpca, data ====== urobit aj funkciu pre upravu celeho riadku naraz
-    bool zmazatZaznam(int IDriadku); // ====== pokial je user zada 0 vymaze vsetky zaznamy, urobit kontrolu prav usera pomocou getPravaUser;
+    bool aktualizovatZaznam(string zaznam, int cisloRiadku, int cislostlpca);
+    bool aktualizovatCelyZaznam(string zaznam,  int cisloRiadku);
+    bool zmazatZaznam(int IDriadku);
     string vypisatZaznamiNeutriedene( );
-    string vypisatZaznamiUtriedene(int stlpec); // (podla dakeho stlpca) ===== musi sa najprv pytat na to ake typy ma a potom sa opyta usera podla kt z nich chce triedit
+    string vypisatZaznamiUtriedene(int stlpec);
 
     string getMenaTabulky();
     string getTypyTabulky();

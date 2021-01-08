@@ -23,9 +23,8 @@ void* primacSprav(void* parameter) {
         if (n > 0){
             pthread_mutex_lock(server->getMutexPrekladac());
 
-            server->getPrekladac()->rozoznaj(buffer);
-            //TODO dat string do char *
-            server->posliSpravu(socket, server->getPrekladac()->rozoznaj(buffer));
+            string odpoved = server->getPrekladac()->rozoznaj(buffer);
+            server->posliSpravu(socket, odpoved.c_str());
 
             pthread_mutex_unlock(server->getMutexPrekladac());
         }
@@ -41,6 +40,7 @@ void* primacSprav(void* parameter) {
 void* connectSpojenie(void* parameter) {
     Server* server  = reinterpret_cast<Server*>(parameter);
     struct sockaddr_in kliAddr;
+    // TODO co tu svieti
     socklen_t klientLength = sizeof(kliAddr);
 
     while(!server->getKoniec()) {
@@ -52,6 +52,7 @@ void* connectSpojenie(void* parameter) {
 
                  server->pridajKlienta(newSocketfd);
                  pthread_t vlakno_klient;
+
                  server->getKlienti_t()->push_back(vlakno_klient);
                  pthread_create(&(server->getKlienti_t()->back()),NULL, primacSprav, server);
 
@@ -113,8 +114,7 @@ void Server::pridajKlienta(int klient) {
 /*
  * odosleme spravu naspat
  */
-void Server::posliSpravu(int klientSock, char * sprava) {
-    // osetrit ze sprava je max velkosti buffer ak bude cas
+void Server::posliSpravu(int klientSock,const char * sprava) {
     int n = write(klientSock,sprava,strlen(sprava) + 1);
 }
 

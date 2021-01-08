@@ -17,14 +17,21 @@ using namespace std;
 class Menu {
 public:
     void vyber_kli_ser();
-    void prihlasenie();
-    void registracia();
     void spustiServer();
     void spustiKlienta();
-    void vytvorTab();
+
+    void prihlasenie();
+    void registracia();
+
+    void prihMenu();
+
     void vypisVytvoreneTab();
     void vypisPristupneTab();
+
+    void vytvorTab();
     void UpravaTab();
+
+
 
     static void ClearScreen();
 

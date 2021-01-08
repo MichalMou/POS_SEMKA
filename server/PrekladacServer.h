@@ -14,6 +14,9 @@ using namespace std;
 
 class PrekladacServer {
 public:
+    string registruj(string menoUser, string heslo);
+    string prihlas(string menoUser, string heslo);
+
     string getTabNazvy(string menoTab);
     string getTabTypy(string menoTab);
     string getTabPrava(string menoTab,string menoUser);
@@ -31,6 +34,7 @@ public:
 
     string pridajZaznam(string nazovTab, string data, string menoUser);
     string aktualizujZaznam(string nazovTab, int IDriadku, string nazovStlpec, string data, string menoUser);// ====== zlozite ak chceme viacej udajov prepisat tak
+    string aktualizujCelyZaznam(string nazovTab, int IDriadku, string data, string menoUser);
     string zmazatZaznam(string nazovTab, int IDriadku, string menoUser);// ======= kontrola ci ma prava
     string vypisatZaznamiNeutriedene(string nazovTab, string menoUser);
     string vypisatZaznamiUtriedene(string nazovTab, int stlpec, string menoUser);// ===== musi sa najprv pytat na to ake typy ma a potom sa opyta usera podla kt z nich chce triedit
