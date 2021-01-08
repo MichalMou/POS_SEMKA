@@ -122,7 +122,6 @@ string PrekladacServer::pridajZaznam(string nazovTab, string data, string menoUs
 }
 
 string PrekladacServer::aktualizujZaznam(string nazovTab, int IDriadku, string nazovStlpec, string data, string menoUser) {
-
 }
 
 string PrekladacServer::zmazatZaznam(string nazovTab, int IDriadku, string menoUser) {
@@ -130,6 +129,8 @@ string PrekladacServer::zmazatZaznam(string nazovTab, int IDriadku, string menoU
 }
 
 string PrekladacServer::vypisatZaznamiNeutriedene(string nazovTab, string menoUser) {
+    // TODO je tam int ze kolko riadkov dat vypise
+
 
 }
 
