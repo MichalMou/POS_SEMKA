@@ -29,6 +29,8 @@ public:
     string vypisUtriedenejTabulky(const string& name, const string& nazovStlpca, int vstup);
     bool exists (const string& name);
     string getMenoTvorcu(const string& nazovTabulky);
+    string getNazvyStlpcov(const string& nazovTabulky);
+    string getDatTypyStlpcov(const string& nazovTabulky);
 private:
 
 };

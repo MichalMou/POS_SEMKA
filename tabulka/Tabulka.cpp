@@ -419,3 +419,28 @@ string Tabulka::getMenoTvorcu(const string& nazovTabulky) {
 
     return riadok;
 }
+
+string Tabulka::getNazvyStlpcov(const string &nazovTabulky) {
+    fstream fin;
+    string riadok;
+
+    fin.open(nazovTabulky, ios::in);
+
+    getline(fin, riadok);
+    getline(fin, riadok);
+
+    return riadok;
+}
+
+string Tabulka::getDatTypyStlpcov(const string &nazovTabulky) {
+    fstream fin;
+    string riadok;
+
+    fin.open(nazovTabulky, ios::in);
+
+    getline(fin, riadok);
+    getline(fin, riadok);
+    getline(fin, riadok);
+
+    return riadok;
+}
