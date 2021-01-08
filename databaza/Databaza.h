@@ -28,6 +28,7 @@ public:
     bool aktualizujVsetkyPristupy( const string & nazovTabulky,const string &menoPouzivatela, const string &dataPristupov);
     string getPristup(const string &nazovTabulky, const string &menoPouzivatela);
     string getZoznamTabuliekPouzivatela(const string &menoPouzivatela);
+    string getZoznamTabuliekPouzivatelaSPristupom(const string &menoPouzivatela);
 
 
 private:
