@@ -242,7 +242,7 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
     string riadok;
     string vystup;
 
-    while (getline(fin, riadok)) {
+    while (getline(fin, riadok, '\n')) {
         row.push_back(riadok);
     }
 
@@ -252,6 +252,56 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
         }
     }
     cout << vystup << endl;
+    return vystup;
+}
+
+string Databaza::getZoznamTabuliekPouzivatelaSPristupom(const string &menoPouzivatela) {
+    string vystup;
+    string riadok;
+    vector<string> row;
+    vector<string> tabs;
+    vector<string> temp;
+    string word;
+    int count = 0;
+    string nazovTab;
+
+    fstream fin;
+    fin.open("ZoznamTabuliek.csv", ios::in);
+
+    while(getline(fin, riadok)) {
+        row.push_back(riadok);
+    }
+
+    for (int i = 0; i < row.size(); ++i) {
+        count = 0;
+        stringstream s;
+        s << row[i];
+        while (getline(s, word, ',')) {
+            ++count;
+            if (count == 2) {
+                tabs.push_back(word);
+            }
+        }
+    }
+
+    fin.close();
+
+    for (int i = 0; i < tabs.size(); ++i) {
+        nazovTab = "pristupy_" + tabs[i];
+        fstream fin;
+        fin.open(nazovTab, ios::in);
+
+        while(getline(fin, riadok)) {
+            temp.push_back(riadok);
+        }
+        stringstream s;
+        s << row[i];
+        getline(s,word,',');
+        if (word == menoPouzivatela) {
+            getline(s, word);
+            vystup += tabs[i] + "|";
+        }
+    }
     return vystup;
 }
 
