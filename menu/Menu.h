@@ -31,6 +31,7 @@ public:
     void vytvorTab();
     void UpravaTab();
 
+    bool jeCislo(string cislo);
 
 
     static void ClearScreen();

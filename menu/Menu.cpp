@@ -363,15 +363,90 @@ void Menu::UpravaTab() {
                     typyStlpcov.push_back(substr);
                 }
 
-                for()
+                int stlpce = typyStlpcov.size();
 
+                for(int i = 0; i < stlpce ;i++) {
+                    string hodnota;
+                    cout << "Zadaj hodnotu pre " << menaStlpcov[i] << " typu " << typyStlpcov[i] << endl;
+                    if(typyStlpcov[i] == "int") {
+                        bool spravnyTyp = false;
+                        do {
+                            cin >> hodnota;
+                            if (jeCislo(hodnota)) {
+                                cout << "Zadal si neplatnu hodnotu" << endl;
+                            } else {
+                                spravnyTyp = true;
+                            }
+                        } while (spravnyTyp);
+
+                    } else if (typyStlpcov[i] == "double") {
+                        bool spravnyTyp = false;
+                        do {
+                            cin >> hodnota;
+                            if (jeCislo(hodnota)) {
+                                cout << "Zadal si neplatnu hodnotu" << endl;
+                            } else {
+                                spravnyTyp = true;
+                            }
+                        } while (spravnyTyp);
+
+                    } else if (typyStlpcov[i] == "string") {
+                        bool spravnyTyp = false;
+                        do {
+                            cin >> hodnota;
+                            if (hodnota.find_first_not_of( "|," ) != std::string::npos) {
+                                cout << "Zadal si neplatnu hodnotu, string nemoze obsahovat | a ," << endl;
+                            } else {
+                                spravnyTyp = true;
+                            }
+                        } while (spravnyTyp);
+
+
+                    } else if (typyStlpcov[i] == "date") {
+                        string den, mesiac, rok;
+                        do {
+                            cout << "Zadaj den, cislom." << endl;
+                            cin >> den;
+                        } while (jeCislo(den));
+                        do {
+                            cout << "Zadaj mesiac, cislom." << endl;
+                            cin >> mesiac;
+                        } while (jeCislo(mesiac));
+                        do {
+                            cout << "Zadaj rok, cislo." << endl;
+                            cin >> rok;
+                        } while (jeCislo(rok));
+                        hodnota = den + "." + mesiac + "." + rok;
+
+                    } else if (typyStlpcov[i] == "bool") {
+                        int vstupBool;
+                        do {
+                            cout << "Zadaj hodnotu: " << endl;
+                            cout << "1.true" << endl;
+                            cout << "2.false" << endl;
+                            cin >> vstupBool;
+                        } while (vstupBool != 1 && vstupBool != 2);
+                        if (vstupBool == 1) {
+                            hodnota = "true";
+                        } else {
+                            hodnota = "false";
+                        }
+                    }
+
+                    if(i > 0) {
+                        zaznam + ",";
+                    }
+                    zaznam += hodnota;
+                }
                 prekladacKlient->pridajZaznam(zaznam);
                 break;
             case 2:
                 // TODO Aktualizovat zaznam
+
                 break;
             case 3:
                 // TODO Zmazat zaznam
+
                 break;
             case 4:
                 // TODO Vypisat zaznamy v neutriedenom poradi
@@ -385,6 +460,13 @@ void Menu::UpravaTab() {
 
 void Menu::prihMenu() {
 
+}
+
+bool Menu::jeCislo(string cislo) {
+    if (cislo.find_first_not_of( "0123456789-+." ) == std::string::npos) {
+        return true;
+    }
+    return false;
 }
 
 
