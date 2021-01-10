@@ -224,7 +224,6 @@ string Databaza::getPristup(const string &nazovTabulky, const string &menoPouziv
             getline(s,word,',');
             if (word == menoPouzivatela) {
                 getline(s, word);
-                cout << word << endl;
                 return word;
             }
         }
@@ -241,6 +240,8 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
     vector<string> row;
     string riadok;
     string vystup;
+    string nazov;
+
 
     while (getline(fin, riadok, '\n')) {
         row.push_back(riadok);
@@ -248,10 +249,13 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
 
     for (int i = 0; i < row.size(); ++i) {
         if (row[i].find(menoPouzivatela) != std::string::npos) {
-            vystup += row[i] + "|";
+            stringstream s;
+            s << row[i];
+            getline(s, nazov, ',');
+            getline(s, nazov, ',');
+            vystup += nazov + "|";
         }
     }
-    cout << vystup << endl;
     return vystup;
 }
 
@@ -290,16 +294,22 @@ string Databaza::getZoznamTabuliekPouzivatelaSPristupom(const string &menoPouziv
         nazovTab = "pristupy_" + tabs[i];
         fstream fin;
         fin.open(nazovTab, ios::in);
+        temp.clear();
 
         while(getline(fin, riadok)) {
             temp.push_back(riadok);
         }
-        stringstream s;
-        s << row[i];
-        getline(s,word,',');
-        if (word == menoPouzivatela) {
+
+        for (int j = 0; j < temp.size(); ++j) {
+            stringstream s;
+            s << temp[j];
+
             getline(s, word);
-            vystup += tabs[i] + "|";
+
+            if (word.find(menoPouzivatela) != std::string::npos) {
+                getline(s, word);
+                vystup += tabs[i] + "|";
+            }
         }
     }
     return vystup;
