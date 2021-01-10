@@ -9,7 +9,6 @@ using namespace std;
 void Menu::vyber_kli_ser() {
     int vstup = 99;
     do {
-        ClearScreen();
         cout << "===== Vitaj v database programe =====" << endl;
         cout << "Chces byt:" << endl;
         cout << "1. server" << endl;
@@ -22,6 +21,7 @@ void Menu::vyber_kli_ser() {
     {
         case 1:
             spustiServer();
+            cout << "koniec ?" << endl;
             break;
         case 2:
             spustiKlienta();
@@ -31,10 +31,9 @@ void Menu::vyber_kli_ser() {
 
 void Menu::spustiServer() {
     int vstup = 99;
-    Server* server = new Server(9876);
+    Server* server = new Server(19875);
     int spusteni = 0;
 
-    ClearScreen();
     cout << "===== Sever =====" << endl;
     cout << "Server je zapnuty!" << endl;
     cout << "1. vypnut server" << endl;
@@ -43,16 +42,19 @@ void Menu::spustiServer() {
         cin >> vstup;
     } while (vstup != 1);
 
-    vstup = 99;
+    server->setKoniec(true);
+
     delete server;
 }
 
 void Menu::spustiKlienta() {
-    Klient* klient = new Klient("localhost",9876);
+    Klient* klient = new Klient("localhost",19875);
+    user = new User();
+    prekladacKlient  = new PrekladacKlient(user, klient);
+
 
     int vstup = 99;
     do {
-        ClearScreen();
         cout << "===== Klient =====" << endl;
         cout << "1. vytvorit konto" << endl;
         cout << "2. prihlasit sa" << endl;
@@ -62,16 +64,12 @@ void Menu::spustiKlienta() {
         switch(vstup)
         {
             case 1:
-                ClearScreen();
-                this->prihlasenie();
-                vstup = 0;
-                break;
-            case 2:
-                ClearScreen();
                 this->registracia();
                 break;
+            case 2:
+                this->prihlasenie();
+                break;
             case 3:
-                ClearScreen();
                 vstup = 0;
                 break;
         }
@@ -79,7 +77,8 @@ void Menu::spustiKlienta() {
     while(vstup != 0);
 
     delete klient;
-
+    delete prekladacKlient;
+    delete user;
 }
 
 void Menu::registracia() {
@@ -123,11 +122,12 @@ void Menu::prihlasenie() {
     while(UID >= 0);
 
     if(UID >= 0 ){
-        user = new User(login, to_string(heslo), UID);
+        user->setMeno(login);
+        user->setUID(UID);
+        user->setHeslo(to_string(heslo));
     }
     prihMenu();
 
-    delete user;
 }
 
 void Menu::ClearScreen() {

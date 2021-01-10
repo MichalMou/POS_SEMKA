@@ -5,31 +5,53 @@ using namespace std;
 
 #define BUFF_N 1024
 
+struct zak {
+    Server* server;
+    int socket;
+};
+
 /*
  * robi iba s vlaknom ktore mu bolo dane preto mame vlakno+primacSprav pre kazdy socket
  */
 void* primacSprav(void* parameter) {
-    Server *server = reinterpret_cast<Server *>(parameter);
+    cout << "socket spusta" << endl;
+    zak* paramt = reinterpret_cast<zak *>(parameter);
     char buffer[BUFF_N];
 
     /* ked sa vztvori socket vytvori sa aj toto vlakno, takze posledny socket je zatial volny
      * a toto vlakno si ho zoberie a bude pren pocuvat
      */
-    int socket = server->getKlienti_t()->back();
 
+    int socket = paramt->socket;
+    //cout << socket << endl;
+    //cout << "socket funguje hadam" << endl;
+    bool koniec;
+    pthread_mutex_lock(paramt->server->getMutexPrekladac());
+    koniec = paramt->server->getKoniec();
+    pthread_mutex_unlock(paramt->server->getMutexPrekladac());
+
+    cout << "ide citat" << endl;
     do {
         bzero(buffer, BUFF_N);
         int n = read(socket, buffer, BUFF_N - 1);
+
         if (n > 0){
-            pthread_mutex_lock(server->getMutexPrekladac());
+            cout << "prisla sprava" << endl;
+            cout << buffer << endl;
+            pthread_mutex_lock(paramt->server->getMutexPrekladac());
 
-            string odpoved = server->getPrekladac()->rozoznaj(buffer);
-            server->posliSpravu(socket, odpoved.c_str());
+            cout << "ide sa vykonat prikaz" << endl;
+            string odpoved = paramt->server->getPrekladac()->rozoznaj(buffer);
+            cout << "prikaz sa vykonal" << endl;
+            paramt->server->posliSpravu(socket, odpoved.c_str());
+            koniec = paramt->server->getKoniec();
+            cout << "odpoved sa odoslala" << endl;
 
-            pthread_mutex_unlock(server->getMutexPrekladac());
+            pthread_mutex_unlock(paramt->server->getMutexPrekladac());
+
         }
     }
-    while (!server->getKoniec());
+    while (!koniec);
 }
 
 
@@ -39,24 +61,36 @@ void* primacSprav(void* parameter) {
  */
 void* connectSpojenie(void* parameter) {
     Server* server  = reinterpret_cast<Server*>(parameter);
-    struct sockaddr_in kliAddr;
-    // TODO co tu svieti
+    sockaddr_in kliAddr{};
     socklen_t klientLength = sizeof(kliAddr);
 
-    while(!server->getKoniec()) {
+    bool koniec = false;
+
+
+    while(!koniec) {
          if(server->getKlienti_t()->size() < 20) {
              int newSocketfd = accept(server->getSocketFD(), (struct sockaddr*)&kliAddr, &klientLength);
 
+
              if (newSocketfd > 0) {
+                 cout << "nove spojenie " << newSocketfd << " niekto sa napojil na server" << endl;
                  pthread_mutex_lock(server->getMutexPrekladac());
 
+                 //cout << "mutex lock" << endl;
                  server->pridajKlienta(newSocketfd);
+                 //cout << "pridava socket" << endl;
                  pthread_t vlakno_klient;
 
-                 server->getKlienti_t()->push_back(vlakno_klient);
-                 pthread_create(&(server->getKlienti_t()->back()),NULL, primacSprav, server);
+                 zak paramt;
+                 paramt.server = server;
+                 paramt.socket = newSocketfd;
 
+                 pthread_create(&vlakno_klient,NULL, primacSprav, (void*) &paramt);
+                 server->getKlienti_t()->push_back(vlakno_klient);
+                 //cout << "vlakno sa vytvorilo a pridalo do vect" << endl;
+                 koniec = server->getKoniec();
                  pthread_mutex_unlock(server->getMutexPrekladac());
+                 cout << newSocketfd << " uspesne vytvorene vlakno" << endl;
              }
          }
     }
@@ -82,20 +116,20 @@ Server::Server(int port) {
     }
     listen(socketfd, 25);
 
-    // mutex na obsluhu prekladaca a databazy
     pthread_mutex_init(&mutex_prekladac, NULL);
-    // thread co obsluhuje vytvorenie novych spojeni
     pthread_create(&primac_spojeni,NULL, connectSpojenie, this);
-
 }
 
 /*
  * destructor zavrie sockety a joine vlakna
  */
 Server::~Server() {
-    for (int klient : *getKlienti()) {
+    // TODO asi zatvaram vlakna co este nieco robia
+    for (int klient : getKlienti()) {
+        shutdown(klient,SHUT_RDWR);
         close(klient);
     }
+    shutdown(socketfd,SHUT_RDWR);
     close(socketfd);
 
     for(pthread_t klient : klienti_t){
@@ -108,18 +142,18 @@ Server::~Server() {
  * pridame socket klienta do vectoru klientov
  */
 void Server::pridajKlienta(int klient) {
-    klienti->push_back(klient);
+    klienti.push_back(klient);
 }
 
 /*
  * odosleme spravu naspat
  */
-void Server::posliSpravu(int klientSock,const char * sprava) {
-    int n = write(klientSock,sprava,strlen(sprava) + 1);
+void Server::posliSpravu(int klientSock,string sprava) {
+    int n = write(klientSock, sprava.c_str(), sprava.size() );
 }
 
-const vector<int> *Server::getKlienti() {
-    return this->klienti;
+vector<int> Server::getKlienti() {
+    return klienti;
 }
 
 int Server::getSocketFD() const{
@@ -140,6 +174,10 @@ pthread_mutex_t *Server::getMutexPrekladac() {
 
 PrekladacServer *Server::getPrekladac() {
     return &(this->prekladac);
+}
+
+void Server::setKoniec(bool parKoniec) {
+    koniec = parKoniec;
 }
 
 

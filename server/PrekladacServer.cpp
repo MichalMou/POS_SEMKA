@@ -266,7 +266,7 @@ string PrekladacServer::vypisatZaznamiUtriedene(string nazovTab, int stlpec, str
 
 string PrekladacServer::registruj(string menoUser, string heslo) {
     string zapis = menoUser + "," + heslo;
-    if (databaza.jeUzivatel(zapis) > -1)
+    if (databaza.jeUzivatel(zapis) > 0)
     {
         return "Error user uz existuje.";
     } else {
@@ -277,7 +277,7 @@ string PrekladacServer::registruj(string menoUser, string heslo) {
 
 string PrekladacServer::prihlas(string menoUser, string heslo) {
     string zapis = menoUser + "," + heslo;
-    if (databaza.jeUzivatel(zapis) > -1)
+    if (databaza.jeUzivatel(zapis) > 0)
     {
         return to_string(databaza.jeUzivatel(zapis));
     } else {

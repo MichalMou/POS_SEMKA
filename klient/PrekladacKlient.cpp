@@ -19,21 +19,19 @@ PrekladacKlient::~PrekladacKlient() {
  * posle spravu cez klienta na server
  */
 void PrekladacKlient::posliSpravu(string sprava) {
-    char* poslat = (char*)"";
-    strcat(poslat,sprava.c_str());
 
-    klient->posliSpravu(poslat);
+    klient->posliSpravu(sprava);
 }
 
 /*
  * prime odpoved na spravu
  */
 string PrekladacKlient::primiOdpovedNaSpravu(string sprava) {
-    char* poslat = (char*)"";
-    strcat(poslat,sprava.c_str());
-
     string odpoved;
-    odpoved = klient->precitaj(poslat);
+
+    sleep(3);
+
+    odpoved = klient->precitaj(sprava);
 
     int spravaLength = sprava.size();
     odpoved = odpoved.substr(spravaLength + 1, odpoved.size() - spravaLength - 1);
@@ -49,9 +47,9 @@ string PrekladacKlient::vytvorene_Tab(string userName) {
     string sprava = "mojt,";
     sprava += userName;
 
+    string odpoved;
     posliSpravu(sprava);
 
-    string odpoved;
     odpoved = primiOdpovedNaSpravu(sprava);
 
     return odpoved;
@@ -342,10 +340,10 @@ string PrekladacKlient::registruj(string menoUser, string heslo) {
  */
 string PrekladacKlient::prihlas(string menoUser, string heslo) {
     string sprava = "prih," + menoUser;
-
-    posliSpravu(sprava);
     sprava += ",";
     sprava += heslo;
+
+    posliSpravu(sprava);
     string odpoved;
     odpoved = primiOdpovedNaSpravu(sprava);
 

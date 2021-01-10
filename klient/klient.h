@@ -19,19 +19,23 @@ class Klient {
 public:
     Klient(const string& ipadressa, int port);
     ~Klient();
-    void posliSpravu(char* sprava);
+    void posliSpravu(string sprava);
     string precitaj(string query);
 
     pthread_t getSprava();
     int getSocketFD() const;
     bool getKoniec() const;
     vector<string> getZoznamSprav();
+    pthread_mutex_t * getMutex();
+    void zapisOdpoved(string odpoved);
 
 private:
     vector<string> zoznamSprav;
     pthread_t sprava;
+    pthread_mutex_t mutex_odpovede;
     int socketfd;
     bool koniec;
+    int poslednaSprava;
 };
 
 

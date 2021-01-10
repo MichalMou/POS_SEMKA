@@ -19,11 +19,12 @@ public:
     Server(int port);
     ~Server();
     void pridajKlienta(int klient);
-    static void posliSpravu(int klient, const char* sprava);
+    void posliSpravu(int klient, string sprava);
 
     int getSocketFD() const;
-    const vector<int>* getKlienti();
+    vector<int> getKlienti();
     bool getKoniec() const;
+    void setKoniec(bool parKoniec);
     vector<pthread_t>* getKlienti_t();
     pthread_mutex_t* getMutexPrekladac();
     PrekladacServer* getPrekladac();
@@ -33,7 +34,7 @@ private:
     pthread_mutex_t mutex_prekladac;
     pthread_t primac_spojeni;
     vector<pthread_t> klienti_t;
-    vector<int>* klienti;
+    vector<int> klienti;
     int socketfd;
     bool koniec;
     };

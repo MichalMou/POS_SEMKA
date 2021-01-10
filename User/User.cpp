@@ -4,11 +4,11 @@
 
 #include "User.h"
 
-User::User(string parMeno, string parHeslo, int parUID) {
-    meno = parHeslo;
-    heslo = parHeslo;
+User::User() {
+    meno = "";
+    heslo = "";
     menoUpravovanejTab = "";
-    UID = parUID;
+    UID = 0;
 }
 
 string User::getMenoUpravovanejTab() {

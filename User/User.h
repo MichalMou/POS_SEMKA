@@ -11,7 +11,7 @@ using namespace std;
 
 class User {
 public:
-    User(string parMeno, string parHeslo, int parUID);
+    User();
     string getMenoUpravovanejTab();
     string getMeno();
     string getHeslo();

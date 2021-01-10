@@ -14,20 +14,23 @@ void* primiSpravu(void* parameter) {
     char buffer[BUFF_N];
     do {
             bzero(buffer, BUFF_N);
+
             int n = read(klient->getSocketFD(), buffer, BUFF_N - 1);
+            pthread_mutex_lock(klient->getMutex());
             if (n > 0){
-                //cout << "mam spravu: " << buffer << endl;
                 string sprava = buffer;
-                string str(sprava);
-                klient->getZoznamSprav().push_back(str);
+                klient->zapisOdpoved(sprava);
+                cout << "primac, sprava zapisana " << klient->getZoznamSprav().size() << endl;
                 n = 0;
-                // ak bude problem s dlzkou spravy tak dorobit rozkuskovanie
             }
+            pthread_mutex_unlock(klient->getMutex());
     }
     while (!klient->getKoniec());
 }
 
 Klient::Klient(const string& ipadressa, int port) {
+    pthread_mutex_init(&mutex_odpovede, NULL);
+    poslednaSprava = 0;
     koniec = false;
     struct sockaddr_in servAddr;
     struct hostent* server;
@@ -49,8 +52,11 @@ Klient::Klient(const string& ipadressa, int port) {
     if(socketfd < 0){
         perror("Nedokazalo sa vytvorit!\n");
     }
+
     if(connect(socketfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
-        perror("Nedokazalo sa pripojit!\n");
+        cout <<"Nedokazalo sa pripojit!" << endl;
+    } else {
+        cout << "pripojil sa na server" << endl;
     }
 
     pthread_create(&sprava, NULL, &primiSpravu, this);
@@ -59,21 +65,41 @@ Klient::Klient(const string& ipadressa, int port) {
 Klient::~Klient() {
     close(getSocketFD());
     pthread_join(getSprava(), NULL);
+    pthread_mutex_destroy(&mutex_odpovede);
 }
 
 // posle spravu serveru
-void Klient::posliSpravu(char *odosielanaSprava) {
-    write(this->getSocketFD(), odosielanaSprava, strlen(odosielanaSprava) + 1);
+void Klient::posliSpravu(string odosielanaSprava) {
+    int size = odosielanaSprava.size();
+    int n = write(this->getSocketFD(), odosielanaSprava.c_str(), size);
 }
 
 //  prejst cely zoznamSprav najst response na spravu
 string Klient::precitaj(string query) {
+    cout << "caka na spravu " << endl;
+    cout << "Sprava sa nasla " << poslednaSprava << " <! " << zoznamSprav.size() << endl;
+
+    // poslednaSprava kolko sprav som uz cital, zoznamSprav je zoznam odpovedi kt mam
+    pthread_mutex_lock(getMutex());
+    while (poslednaSprava >= zoznamSprav.size() ) {
+        pthread_mutex_unlock(getMutex());
+        sleep(1);
+        pthread_mutex_lock(getMutex());
+    }
+    pthread_mutex_unlock(getMutex());
+    poslednaSprava += 1;
+
+    pthread_mutex_lock(getMutex());
     for (string zaznam : zoznamSprav) {
         if(zaznam.find(query) != string::npos){
-            return zaznam;
+            pthread_mutex_unlock(getMutex());
+                return zaznam;
         }
     }
+    pthread_mutex_unlock(getMutex());
+
     return "Error odpoved na query sa nenasla!";
+
 }
 
 vector<string> Klient::getZoznamSprav() {
@@ -90,6 +116,14 @@ int Klient::getSocketFD() const {
 
 pthread_t Klient::getSprava() {
     return this->sprava;
+}
+
+pthread_mutex_t* Klient::getMutex() {
+    return &this->mutex_odpovede;
+}
+
+void Klient::zapisOdpoved(string odpoved) {
+    zoznamSprav.push_back(odpoved);
 }
 
 #undef BUFF_N
