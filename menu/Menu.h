@@ -33,9 +33,6 @@ public:
 
     bool jeCislo(string cislo);
 
-
-    static void ClearScreen();
-
 private:
     User* user;
     PrekladacKlient* prekladacKlient;

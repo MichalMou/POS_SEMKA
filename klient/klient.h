@@ -21,13 +21,14 @@ public:
     ~Klient();
     void posliSpravu(string sprava);
     string precitaj(string query);
+    void zapisOdpoved(string odpoved);
+    void ukonci();
 
     pthread_t getSprava();
     int getSocketFD() const;
     bool getKoniec() const;
     vector<string> getZoznamSprav();
     pthread_mutex_t * getMutex();
-    void zapisOdpoved(string odpoved);
 
 private:
     vector<string> zoznamSprav;

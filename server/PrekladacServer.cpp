@@ -98,31 +98,35 @@ string PrekladacServer::pristupneTabUsera(string menoUser) {
 }
 
 string PrekladacServer::vytvorTab(string nazovTab, string nazvyStlpcov, string nazovTypov, string menoUser, int pocetStlpcov) {
+    nazvyStlpcov = vymenZnak(nazvyStlpcov,'|',',');
+    nazovTypov = vymenZnak(nazovTypov,'|',',');
+
     if(databaza.vytvorTab(nazovTab, menoUser, pocetStlpcov, nazvyStlpcov, nazovTypov)) {
-        return ".true";
+        cout << "Uspesne vytvorena nova tabulka." << endl;
+        return "true";
     }
-    return ".false";
+    return "false";
 }
 
 string PrekladacServer::zmazTab(string nazovTab) {
     if(databaza.zrusTab(nazovTab)) {
-        return ".true";
+        return "true";
     }
-    return ".false";
+    return "false";
 }
 
 string PrekladacServer::upravPrava(string menoTab, string menoUser, string data) {
     if(databaza.aktualizujVsetkyPristupy(menoTab,menoUser,data)) {
-        return ".true";
+        return "true";
     }
-    return ".false";
+    return "false";
 }
 
 string PrekladacServer::pridajPrava(string menoTab, string menoUser, string data) {
     if(databaza.nastavPristup(menoTab,menoUser,data)) {
-        return ".true";
+        return "true";
     }
-    return ".false";
+    return "1false";
 }
 
 string PrekladacServer::pridajZaznam(string nazovTab, string data, string menoUser) {
@@ -277,11 +281,23 @@ string PrekladacServer::registruj(string menoUser, string heslo) {
 
 string PrekladacServer::prihlas(string menoUser, string heslo) {
     string zapis = menoUser + "," + heslo;
+    cout << databaza.jeUzivatel(zapis) << endl;
     if (databaza.jeUzivatel(zapis) > 0)
     {
+        cout << "login pokus:" << zapis << endl;
         return to_string(databaza.jeUzivatel(zapis));
     } else {
         return "-1";
     }
+}
+
+string PrekladacServer::vymenZnak(string text, char hladany, char nahrada) {
+    int velkost = text.size();
+    for(int i = 0; i < velkost; i++) {
+        if (text[i] == hladany) {
+            text[i] = nahrada;
+        }
+    }
+    return text;
 }
 

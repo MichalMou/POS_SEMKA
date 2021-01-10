@@ -23,7 +23,7 @@ public:
 
     int getSocketFD() const;
     vector<int> getKlienti();
-    bool getKoniec() const;
+    bool getKoniec();
     void setKoniec(bool parKoniec);
     vector<pthread_t>* getKlienti_t();
     pthread_mutex_t* getMutexPrekladac();

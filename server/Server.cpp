@@ -14,7 +14,6 @@ struct zak {
  * robi iba s vlaknom ktore mu bolo dane preto mame vlakno+primacSprav pre kazdy socket
  */
 void* primacSprav(void* parameter) {
-    cout << "socket spusta" << endl;
     zak* paramt = reinterpret_cast<zak *>(parameter);
     char buffer[BUFF_N];
 
@@ -26,30 +25,27 @@ void* primacSprav(void* parameter) {
     //cout << socket << endl;
     //cout << "socket funguje hadam" << endl;
     bool koniec;
-    pthread_mutex_lock(paramt->server->getMutexPrekladac());
     koniec = paramt->server->getKoniec();
-    pthread_mutex_unlock(paramt->server->getMutexPrekladac());
 
-    cout << "ide citat" << endl;
+    //cout << "ide citat" << endl;
     do {
         bzero(buffer, BUFF_N);
         int n = read(socket, buffer, BUFF_N - 1);
 
         if (n > 0){
-            cout << "prisla sprava" << endl;
+            //cout << "prisla sprava" << endl;
             cout << buffer << endl;
             pthread_mutex_lock(paramt->server->getMutexPrekladac());
 
-            cout << "ide sa vykonat prikaz" << endl;
+            //cout << "ide sa vykonat prikaz" << endl;
             string odpoved = paramt->server->getPrekladac()->rozoznaj(buffer);
-            cout << "prikaz sa vykonal" << endl;
+            //cout << "prikaz sa vykonal" << endl;
             paramt->server->posliSpravu(socket, odpoved.c_str());
-            koniec = paramt->server->getKoniec();
-            cout << "odpoved sa odoslala" << endl;
-
+            cout << "odpoved:" << odpoved <<" sa odoslala" << endl;
             pthread_mutex_unlock(paramt->server->getMutexPrekladac());
-
         }
+
+        koniec = paramt->server->getKoniec();
     }
     while (!koniec);
 }
@@ -68,12 +64,13 @@ void* connectSpojenie(void* parameter) {
 
 
     while(!koniec) {
+
          if(server->getKlienti_t()->size() < 20) {
              int newSocketfd = accept(server->getSocketFD(), (struct sockaddr*)&kliAddr, &klientLength);
 
 
              if (newSocketfd > 0) {
-                 cout << "nove spojenie " << newSocketfd << " niekto sa napojil na server" << endl;
+                 //cout << "nove spojenie " << newSocketfd << " niekto sa napojil na server" << endl;
                  pthread_mutex_lock(server->getMutexPrekladac());
 
                  //cout << "mutex lock" << endl;
@@ -88,11 +85,14 @@ void* connectSpojenie(void* parameter) {
                  pthread_create(&vlakno_klient,NULL, primacSprav, (void*) &paramt);
                  server->getKlienti_t()->push_back(vlakno_klient);
                  //cout << "vlakno sa vytvorilo a pridalo do vect" << endl;
-                 koniec = server->getKoniec();
                  pthread_mutex_unlock(server->getMutexPrekladac());
                  cout << newSocketfd << " uspesne vytvorene vlakno" << endl;
              }
          }
+        koniec = server->getKoniec();
+        if (koniec) {
+            cout << "konci sa vlakno" << endl;
+        }
     }
 }
 
@@ -124,7 +124,6 @@ Server::Server(int port) {
  * destructor zavrie sockety a joine vlakna
  */
 Server::~Server() {
-    // TODO asi zatvaram vlakna co este nieco robia
     for (int klient : getKlienti()) {
         shutdown(klient,SHUT_RDWR);
         close(klient);
@@ -160,8 +159,12 @@ int Server::getSocketFD() const{
     return socketfd;
 }
 
-bool Server::getKoniec() const {
-    return this->koniec;
+bool Server::getKoniec() {
+    pthread_mutex_lock(&mutex_prekladac);
+    bool hodnota = this->koniec;
+    pthread_mutex_unlock(&mutex_prekladac);
+
+    return hodnota;
 }
 
 vector<pthread_t>* Server::getKlienti_t() {
@@ -177,7 +180,9 @@ PrekladacServer *Server::getPrekladac() {
 }
 
 void Server::setKoniec(bool parKoniec) {
+    pthread_mutex_lock(&mutex_prekladac);
     koniec = parKoniec;
+    pthread_mutex_unlock(&mutex_prekladac);
 }
 
 

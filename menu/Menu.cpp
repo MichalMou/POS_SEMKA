@@ -71,6 +71,7 @@ void Menu::spustiKlienta() {
                 break;
             case 3:
                 vstup = 0;
+                klient->ukonci();
                 break;
         }
     }
@@ -119,19 +120,14 @@ void Menu::prihlasenie() {
 
         UID = stoi(prekladacKlient->prihlas(login,to_string(heslo)));
     }
-    while(UID >= 0);
+    while(UID < 0);
 
-    if(UID >= 0 ){
-        user->setMeno(login);
-        user->setUID(UID);
-        user->setHeslo(to_string(heslo));
-    }
+    user->setMeno(login);
+    user->setUID(UID);
+    user->setHeslo(to_string(heslo));
+
     prihMenu();
 
-}
-
-void Menu::ClearScreen() {
-    cout << string( 100, '\n' );
 }
 
 void Menu::vytvorTab() {
@@ -147,7 +143,7 @@ void Menu::vytvorTab() {
     cin >> pocetStlpcov;
 
     if(pocetStlpcov > 0) {
-        for(int i = 0; i < pocetStlpcov; i++){
+        for(int i = 0; i < pocetStlpcov ; i++){
             string nazov;
             int typ = 99;
 
@@ -196,7 +192,7 @@ void Menu::vytvorTab() {
             }
         }
     }
-    if(prekladacKlient->vytvorTab(nazovTabulky,typStlpcu,nazvyStlpcov,pocetStlpcov)) {
+    if(prekladacKlient->vytvorTab(nazovTabulky,typStlpcu,nazvyStlpcov,pocetStlpcov + 1)) {
         cout << "Tabulka uspesne vytvorena." << endl;
     } else {
         cout << "Tabulka sa nemohla vytvorit, nieco sa pokazilo." << endl;
@@ -212,16 +208,19 @@ void Menu::vypisVytvoreneTab() {
         vstup =99;
         cout << "===== Vytvoril si tieto tabulky ======" << endl;
         string tabulky = prekladacKlient->vytvorene_Tab(user->getMeno());
+
+        cout << " tabulky v riadku" << tabulky << endl;
+
         vector<string> tabulkyRiadky;
         stringstream ss(tabulky);
         while (ss.good()) {
             string substr;
-            getline(ss, substr, ',');
+            getline(ss, substr, '|');
             tabulkyRiadky.push_back(substr);
         }
 
         for (int i = 0; i < tabulkyRiadky.size(); i++) {
-            cout << tabulkyRiadky[0] << endl;
+            cout << tabulkyRiadky[i] << endl;
         }
 
 
@@ -301,7 +300,7 @@ void Menu::vypisVytvoreneTab() {
 
                 user->setMenoUpravovanejTab(menoTab);
                 UpravaTab();
-                user->setMenoUpravovanejTab(nullptr);
+                user->setMenoUpravovanejTab("");
                 break;
             }
 
@@ -356,7 +355,7 @@ void Menu::vypisPristupneTab() {
                 cin >> nazovTab;
                 user->setMenoUpravovanejTab(nazovTab);
                 UpravaTab();
-                user->setMenoUpravovanejTab(nullptr);
+                user->setMenoUpravovanejTab("");
                 break;
         }
     } while (vstup != 2);
@@ -562,7 +561,6 @@ void Menu::prihMenu() {
     int vstup = 99;
     do {
         vstup = 99;
-        ClearScreen();
         cout << "===== Menu ======" << endl;
         cout << "1. Vytvor tabulku" << endl;
         cout << "2. vytvorene tabulky" << endl;

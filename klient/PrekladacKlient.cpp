@@ -85,7 +85,8 @@ bool PrekladacKlient::vytvorTab(string meno, string dataTypy, string dataNazvy, 
     sprava += ",";
     sprava += user->getMeno();
     sprava += ",";
-    sprava += pocStlpcov;
+    sprava += to_string(pocStlpcov);
+    cout << sprava;
 
     posliSpravu(sprava);
 
@@ -133,7 +134,7 @@ bool PrekladacKlient::zmazTab(string nazovTab, string userName) {
 
     if(odpoved.compare("true") == 0)
     {
-        user->setMenoUpravovanejTab(nullptr);
+        user->setMenoUpravovanejTab("");
         return true;
     }
     return false;

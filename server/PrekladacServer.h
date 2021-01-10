@@ -38,6 +38,8 @@ public:
     string zmazatZaznam(string nazovTab, int IDriadku, string menoUser);// ======= kontrola ci ma prava
     string vypisatZaznamiNeutriedene(string nazovTab, string menoUser);
     string vypisatZaznamiUtriedene(string nazovTab, int stlpec, string menoUser);// ===== musi sa najprv pytat na to ake typy ma a potom sa opyta usera podla kt z nich chce triedit
+
+    string vymenZnak(string text, char hladany, char nahrada);
 private:
     Databaza databaza;
     Tabulka tabulka;

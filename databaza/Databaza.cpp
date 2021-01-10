@@ -236,6 +236,7 @@ string Databaza::getPristup(const string &nazovTabulky, const string &menoPouziv
 
 string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
     fstream fin;
+    string nazov;
     fin.open("ZoznamTabuliek.csv", ios::in);
     vector<string> row;
     string riadok;
@@ -248,6 +249,7 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
     }
 
     for (int i = 0; i < row.size(); ++i) {
+
         if (row[i].find(menoPouzivatela) != std::string::npos) {
             stringstream s;
             s << row[i];
