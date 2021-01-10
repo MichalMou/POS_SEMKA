@@ -330,7 +330,7 @@ void Menu::vypisPristupneTab() {
         stringstream ss(tabulky);
         while (ss.good()) {
             string substr;
-            getline(ss, substr, ',');
+            getline(ss, substr, '|');
             tabulkyRiadky.push_back(substr);
         }
 

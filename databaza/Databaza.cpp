@@ -311,7 +311,10 @@ string Databaza::getZoznamTabuliekPouzivatelaSPristupom(const string &menoPouziv
 
             if (word.find(menoPouzivatela) != std::string::npos) {
                 getline(s, word);
-                vystup += tabs[i] + "|";
+                if (j > 0) {
+                    vystup += "|";
+                }
+                vystup += tabs[i];
             }
         }
     }
