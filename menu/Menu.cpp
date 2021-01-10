@@ -222,7 +222,7 @@ void Menu::vypisVytvoreneTab() {
         for (int i = 0; i < tabulkyRiadky.size(); i++) {
             cout << tabulkyRiadky[i] << endl;
         }
-
+        cout << "-----" << endl;
 
         do {
             vstup = 99;
@@ -342,6 +342,8 @@ void Menu::vypisPristupneTab() {
         for (int i = 0; i < tabulkyRiadky.size(); i++) {
             cout << tabulkyRiadky[i] << endl;
         }
+        cout << "-----" << endl;
+
         do {
             cout << endl;
             cout << "1. vyber tabulku" << endl;
@@ -457,10 +459,10 @@ void Menu::UpravaTab() {
                 break;
             }
             case 2: {
-                string upravenaHodnota;
-                int upravenyStlpec, UID;
+                string upravenyStlpec, upravenaHodnota;
+                int UID;
 
-                cout << "Zvol cislo riadku ktorý chceš aktualizovat" << endl;
+                cout << "Zvol ID riadku ktorý chceš aktualizovat" << endl;
                 cin >> UID;
 
                 cout << prekladacKlient->getMenaTabulky() << endl;
@@ -470,7 +472,7 @@ void Menu::UpravaTab() {
                 cout << "Zadaj Upravenu hodnotu." << endl;
                 cin >> upravenaHodnota;
 
-                if (prekladacKlient->aktualizovatZaznam(upravenaHodnota, UID, upravenyStlpec)) {
+                if (!prekladacKlient->aktualizovatZaznam(upravenaHodnota, UID, upravenyStlpec)) {
                     cout << "Hodnota uspesne upravena." << endl;
                 } else {
                     cout << "Hodnotu sa nepodarilo upravit." << endl;
@@ -484,7 +486,7 @@ void Menu::UpravaTab() {
                 cin >> UID;
 
 
-                if (prekladacKlient->zmazatZaznam(UID)) {
+                if (!prekladacKlient->zmazatZaznam(UID)) {
                     cout << "Zaznam uspesne zmazany." << endl;
                 } else {
                     cout << "Zaznam sa nepodarilo zmazat." << endl;

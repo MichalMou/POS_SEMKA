@@ -207,9 +207,10 @@ bool PrekladacKlient::pridajZaznam(string zaznam) {
 /*
  * kod:akzz
  */
-bool PrekladacKlient::aktualizovatZaznam(string zaznam, int cisloRiadku, int cisloStlpca) {
+bool PrekladacKlient::aktualizovatZaznam(string zaznam, int cisloRiadku, string menoStlpca) {
     string sprava = "akzz," + user->getMenoUpravovanejTab() + "," + to_string(cisloRiadku);
-    sprava += to_string(cisloStlpca);
+    sprava += ",";
+    sprava += menoStlpca;
     sprava += ",";
     sprava += zaznam;
     sprava += ",";

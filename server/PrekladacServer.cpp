@@ -44,7 +44,17 @@ string PrekladacServer::rozoznaj(string sprava) {
         odpoved += upravPrava(spravaVektor[1],spravaVektor[2],spravaVektor[3]);
 
     } else if (spravaVektor[0] == "przz") {
-        odpoved += pridajZaznam(spravaVektor[1],spravaVektor[2],spravaVektor[3]);
+        string data;
+        for (int i = 0; i < spravaVektor.size(); i++) {
+            if (i > 1 && i < (spravaVektor.size() - 1)) {
+                if (i > 2) {
+                    data += ",";
+                }
+                data += spravaVektor[i];
+            }
+        }
+
+                odpoved += pridajZaznam(spravaVektor[1], data, spravaVektor.back());
 
     } else if (spravaVektor[0] == "akzz") {
         odpoved += aktualizujZaznam(spravaVektor[1],stoi(spravaVektor[2]),spravaVektor[3],spravaVektor[4],spravaVektor[5]);
@@ -248,7 +258,7 @@ string PrekladacServer::vypisatZaznamiUtriedene(string nazovTab, int stlpec, str
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, ',');
+        getline(ss, substr, '*');
         pravaVektor.push_back(substr);
     }
 

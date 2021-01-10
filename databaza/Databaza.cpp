@@ -34,7 +34,7 @@ bool Databaza::vytvorTab(const string& nazovTabulky,const string& menoPouzivatel
 
             pristupy.open(nazovPristupov, ios::out | ios::app);
             pristupy << "Meno,vkladanie,aktualizovanie,vypisovanie,mazanie" << endl;
-            pristupy << menoPouzivatela << "," << "1,1,1,1" << endl;
+            pristupy << menoPouzivatela << "," << "1*1*1*1" << endl;
 
             pristupy.close();
 

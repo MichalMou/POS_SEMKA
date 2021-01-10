@@ -37,7 +37,7 @@ public:
     bool upravPrava(string menoPouzivatela, string data_prava);
 
     bool pridajZaznam(string zaznam);
-    bool aktualizovatZaznam(string zaznam, int cisloRiadku, int cislostlpca);
+    bool aktualizovatZaznam(string zaznam, int cisloRiadku, string menoStlpca);
     bool aktualizovatCelyZaznam(string zaznam,  int cisloRiadku);
     bool zmazatZaznam(int IDriadku);
     string vypisatZaznamiNeutriedene( );
