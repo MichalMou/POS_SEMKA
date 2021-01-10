@@ -213,7 +213,7 @@ string PrekladacServer::zmazatZaznam(string nazovTab, int IDriadku, string menoU
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, '|');
+        getline(ss, substr, ',');
         pravaVektor.push_back(substr);
     }
 
@@ -231,7 +231,7 @@ string PrekladacServer::vypisatZaznamiNeutriedene(string nazovTab, string menoUs
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, '|');
+        getline(ss, substr, ',');
         pravaVektor.push_back(substr);
     }
 

@@ -14,12 +14,12 @@ void *primiSpravu(void *parameter) {
     char buffer[BUFF_N];
     do {
         bzero(buffer, BUFF_N);
-        cout << "idem cakat na read" << endl;
+        //cout << "idem cakat na read" << endl;
 
         int n = read(klient->getSocketFD(), buffer, BUFF_N - 1);
-        cout << "necakam na read" << endl;
+        //cout << "necakam na read" << endl;
         pthread_mutex_lock(klient->getMutex());
-        cout << "necakam na mutex" << endl;
+        //cout << "necakam na mutex" << endl;
 
         if (n > 0) {
             string sprava = buffer;
@@ -30,7 +30,7 @@ void *primiSpravu(void *parameter) {
         pthread_mutex_unlock(klient->getMutex());
 
         n = 0;
-        cout << "opakujem podmienku zle je" << endl;
+        //cout << "opakujem podmienku zle je" << endl;
 
     } while (!klient->getKoniec());
 }
@@ -93,11 +93,10 @@ string Klient::precitaj(string query) {
     pthread_mutex_lock(getMutex());
     while (poslednaSprava >= zoznamSprav.size()) {
         pthread_mutex_unlock(getMutex());
-        sleep(1);
         pthread_mutex_lock(getMutex());
     }
     pthread_mutex_unlock(getMutex());
-    cout << zoznamSprav.back() << endl;
+    cout << "sprava je: " << zoznamSprav.back() << endl;
     poslednaSprava += 1;
 
     pthread_mutex_lock(getMutex());

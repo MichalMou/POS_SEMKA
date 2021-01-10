@@ -241,8 +241,6 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
     vector<string> row;
     string riadok;
     string vystup;
-    string nazov;
-
 
     while (getline(fin, riadok, '\n')) {
         row.push_back(riadok);
@@ -255,7 +253,10 @@ string Databaza::getZoznamTabuliekPouzivatela(const string &menoPouzivatela) {
             s << row[i];
             getline(s, nazov, ',');
             getline(s, nazov, ',');
-            vystup += nazov + "|";
+            if (i > 0) {
+                vystup += "|";
+            }
+            vystup += nazov;
         }
     }
     return vystup;

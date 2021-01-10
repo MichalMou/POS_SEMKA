@@ -154,18 +154,18 @@ void Menu::vytvorTab() {
             }
             nazvyStlpcov += nazov;
 
+            cout << "Akeho ma byt typu" << endl;
+            cout << "0. int" << endl;
+            cout << "1. double" << endl;
+            cout << "2. bool" << endl;
+            cout << "3. string"<< endl;
+            cout << "4. date" << endl;
             do {
-                if(typ != 99)
+                cin >> typ;
+                if(typ != 0 && typ != 1 && typ != 2 && typ != 3 && typ != 4)
                 {
                     cout << "Zly vstup zadaj znovu" << endl;
                 }
-                cout << "Akeho ma byt typu" << endl;
-                cout << "0. int" << endl;
-                cout << "1. double" << endl;
-                cout << "2. bool" << endl;
-                cout << "3. string"<< endl;
-                cout << "4. date" << endl;
-                cin >> typ;
             } while (typ != 0 && typ != 1 && typ != 2 && typ != 3 && typ != 4);
 
             if(i > 0) {
@@ -209,7 +209,7 @@ void Menu::vypisVytvoreneTab() {
         cout << "===== Vytvoril si tieto tabulky ======" << endl;
         string tabulky = prekladacKlient->vytvorene_Tab(user->getMeno());
 
-        cout << " tabulky v riadku" << tabulky << endl;
+        // cout << " tabulky v riadku" << tabulky << endl;
 
         vector<string> tabulkyRiadky;
         stringstream ss(tabulky);
@@ -230,6 +230,7 @@ void Menu::vypisVytvoreneTab() {
             cout << "3. zmaz tabulku" << endl;
             cout << "4. exit" << endl;
             cin >> vstup;
+
         } while( vstup != 1 && vstup != 2 && vstup != 3 && vstup != 4);
 
         switch(vstup) {
@@ -364,7 +365,7 @@ void Menu::vypisPristupneTab() {
 void Menu::UpravaTab() {
     int vstup = 99;
     do {
-        vstup =99;
+        vstup = 99;
         do {
             cout << endl;
 
@@ -394,7 +395,7 @@ void Menu::UpravaTab() {
                     menaStlpcov.push_back(substr);
                 }
 
-                stringstream ssTypy(menaTab);
+                stringstream ssTypy(typTab);
                 while (ssTypy.good()) {
                     string substr;
                     getline(ssTypy, substr, ',');
@@ -403,7 +404,7 @@ void Menu::UpravaTab() {
 
                 int stlpce = typyStlpcov.size();
 
-                for (int i = 0; i < stlpce; i++) {
+                for (int i = 1; i < stlpce; i++) {
                     string hodnota;
                     cout << "Zadaj hodnotu pre " << menaStlpcov[i] << " typu " << typyStlpcov[i] << endl;
                     if (typyStlpcov[i] == "int") {
@@ -429,16 +430,7 @@ void Menu::UpravaTab() {
                         } while (spravnyTyp);
 
                     } else if (typyStlpcov[i] == "string") {
-                        bool spravnyTyp = false;
-                        do {
-                            cin >> hodnota;
-                            if (hodnota.find_first_not_of("|,") != std::string::npos) {
-                                cout << "Zadal si neplatnu hodnotu, string nemoze obsahovat | a ," << endl;
-                            } else {
-                                spravnyTyp = true;
-                            }
-                        } while (spravnyTyp);
-
+                        cin >> hodnota;
 
                     } else if (typyStlpcov[i] == "date") {
                         string den, mesiac, rok;
@@ -554,6 +546,7 @@ void Menu::UpravaTab() {
                 break;
             }
         }
+
     } while (vstup != 6);
 }
 
