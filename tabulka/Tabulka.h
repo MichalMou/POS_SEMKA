@@ -25,8 +25,8 @@ public:
     bool pridajZaznam(const string& nazovTabulky, const string& data);
     bool vymazZaznam(const string& nazovTabulky, int id);
     bool aktualizujZaznam(const string& nazovTabulky, int id, const string& nazovStlpca, const string &data);
-    string vypisNeutriedenejTabulky(const string& name, int vstup);
-    string vypisUtriedenejTabulky(const string& name, const string& nazovStlpca, int vstup);
+    string vypisNeutriedenejTabulky(const string& name);
+    string vypisUtriedenejTabulky(const string& name, const string& nazovStlpca);
     bool exists (const string& name);
     string getMenoTvorcu(const string& nazovTabulky);
     string getNazvyStlpcov(const string& nazovTabulky);

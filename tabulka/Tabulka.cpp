@@ -235,7 +235,7 @@ bool Tabulka::aktualizujZaznam(const string& nazovTabulky, int id, const string&
     return true;
 }
 
-string Tabulka::vypisNeutriedenejTabulky(const string& name, int vstup) {
+string Tabulka::vypisNeutriedenejTabulky(const string& name) {
     fstream fin;
     string riadok;
     bool hodnota = false;
@@ -256,38 +256,17 @@ string Tabulka::vypisNeutriedenejTabulky(const string& name, int vstup) {
     fin.seekg(0);
 
     while (!hodnota) {
-        if (vstup == 0) {
             while(!fin.eof()) {
                 getline(fin, riadok);
                 vystup += riadok + "|";
                 hodnota = true;
             }
-        } else {
-            if (vstup <= pocetRiadkov - 3) {
-                getline(fin, riadok);
-                vystup += riadok + "|";
-                getline(fin, riadok);
-                vystup += riadok + "|";
-                getline(fin, riadok);
-                vystup += riadok + "|";
-
-                while (count != vstup) {
-                    getline(fin, riadok);
-                    vystup += riadok + "|";
-                    ++count;
-                }
-                hodnota = true;
-
-            } else {
-                cout << "Tolko zaznamov v tabulke nie je skuste znova." << endl;
-            }
-        }
     }
     fin.close();
     return vystup;
 }
 
-string Tabulka::vypisUtriedenejTabulky(const string& name, const string& nazovStlpca, int vstup) {
+string Tabulka::vypisUtriedenejTabulky(const string& name, const string& nazovStlpca) {
     fstream fin;
     string riadok, meno, stlpce, typy, slovo, word;
     int count = 0;
@@ -298,6 +277,7 @@ string Tabulka::vypisUtriedenejTabulky(const string& name, const string& nazovSt
     vector<string> allRows;
     stringstream temp;
     int index = 0;
+    string vystup;
 
     if (!exists(name)) {
         return "Chyba";
@@ -312,14 +292,17 @@ string Tabulka::vypisUtriedenejTabulky(const string& name, const string& nazovSt
     fin.seekg(0);
 
     getline(fin, meno);
+    vystup += meno + "|";
 
     getline(fin, stlpce);
+    vystup += stlpce + "|";
 
     temp.str(stlpce);
     while(getline(temp, word,',')) {
         nazvyStlpcov.push_back(word);
     }
     getline(fin, typy);
+    vystup += typy + "|";
 
     while(index == 0) {
 
@@ -380,24 +363,9 @@ string Tabulka::vypisUtriedenejTabulky(const string& name, const string& nazovSt
         }
     }
 
-    cout << meno << endl;
-    cout << stlpce << endl;
-    cout << typy << endl;
 
-    string vystup;
-
-    if (vstup == 0) {
-        for (int i = 0; i < n; ++i) {
-            vystup += pole[i] + "|";
-        }
-    } else {
-        if (vstup <= pocetRiadkov) {
-            for (int i = 0; i < vstup; ++i) {
-                vystup += pole[i] + "|";
-            }
-        } else {
-            cout << "Tolko zaznamov v tabulke nie je skuste znova." << endl;
-        }
+    for (int i = 0; i < n; ++i) {
+        vystup += pole[i] + "|";
     }
 
     fin.close();
