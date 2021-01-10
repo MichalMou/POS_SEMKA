@@ -85,10 +85,6 @@ void Klient::posliSpravu(string odosielanaSprava) {
 
 //  prejst cely zoznamSprav najst response na spravu
 string Klient::precitaj(string query) {
-    //cout << "caka na spravu " << endl;
-
-    // poslednaSprava kolko sprav som uz cital, zoznamSprav je zoznam odpovedi kt mam
-    //cout << "Sprava sa hlada " << poslednaSprava << " >= " << zoznamSprav.size() << endl;
 
     pthread_mutex_lock(getMutex());
     while (poslednaSprava >= zoznamSprav.size()) {
@@ -96,14 +92,15 @@ string Klient::precitaj(string query) {
         pthread_mutex_lock(getMutex());
     }
     pthread_mutex_unlock(getMutex());
-    cout << "sprava je: " << zoznamSprav.back() << endl;
-    poslednaSprava += 1;
 
+    string vratit;
     pthread_mutex_lock(getMutex());
     for (string zaznam : zoznamSprav) {
         if (zaznam.find(query) != string::npos) {
+            vratit = zaznam;
+            zoznamSprav.pop_back();
             pthread_mutex_unlock(getMutex());
-            return zaznam;
+            return vratit;
         }
     }
     pthread_mutex_unlock(getMutex());

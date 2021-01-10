@@ -143,8 +143,10 @@ bool PrekladacKlient::zmazTab(string nazovTab, string userName) {
 /* prida pristupove prava k tabulke
  * kod:prpp
  */
-bool PrekladacKlient::pridajPristupovePrava(string meno, string prava) {
+bool PrekladacKlient::pridajPristupovePrava(string meno, string prava, string menoTab) {
     string sprava = "prpp,";
+    sprava += menoTab;
+    sprava += ",";
     sprava += meno;
     sprava += ",";
     sprava += prava;

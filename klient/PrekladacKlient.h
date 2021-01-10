@@ -33,7 +33,7 @@ public:
     bool otvorTab(string nazovTab);
     bool zmazTab(string nazovTab, string userName);
 
-    bool pridajPristupovePrava(string meno , string prava);
+    bool pridajPristupovePrava(string meno , string prava, string menoTab);
     bool upravPrava(string menoPouzivatela, string data_prava);
 
     bool pridajZaznam(string zaznam);

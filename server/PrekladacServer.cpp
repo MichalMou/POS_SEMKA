@@ -136,7 +136,7 @@ string PrekladacServer::pridajZaznam(string nazovTab, string data, string menoUs
 
     while (ss.good()) {
         string substr;
-        getline(ss, substr, ',');
+        getline(ss, substr, '*');
         pravaVektor.push_back(substr);
     }
 
@@ -154,11 +154,11 @@ string PrekladacServer::aktualizujZaznam(string nazovTab, int IDriadku, string n
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, '|');
+        getline(ss, substr, '*');
         pravaVektor.push_back(substr);
     }
 
-    if(pravaVektor[0] == "1"){
+    if(pravaVektor[1] == "1"){
         if(tabulka.aktualizujZaznam(nazovTab,IDriadku,nazovStlpec,data)){
             return "Zaznam bol uspesne aktualizovany.";
         } else {
@@ -176,11 +176,11 @@ string PrekladacServer::aktualizujCelyZaznam(string nazovTab, int IDriadku, stri
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, ',');
+        getline(ss, substr, '*');
         pravaVektor.push_back(substr);
     }
 
-    if(pravaVektor[0] == "1"){
+    if(pravaVektor[1] == "1"){
         vector<string> dataVektor;
         stringstream ssdata(data);
         while (ssdata.good()) {
@@ -213,7 +213,7 @@ string PrekladacServer::zmazatZaznam(string nazovTab, int IDriadku, string menoU
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, ',');
+        getline(ss, substr, '*');
         pravaVektor.push_back(substr);
     }
 
@@ -231,12 +231,12 @@ string PrekladacServer::vypisatZaznamiNeutriedene(string nazovTab, string menoUs
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, ',');
+        getline(ss, substr, '*');
         pravaVektor.push_back(substr);
     }
 
-    if (pravaVektor[3] == "1"){
-        return tabulka.vypisNeutriedenejTabulky(nazovTab, 10);
+    if (pravaVektor[2] == "1"){
+        return tabulka.vypisNeutriedenejTabulky(nazovTab);
     } else {
         return "Error nemas prava na vypisanie tabulky.";
     }
@@ -248,11 +248,11 @@ string PrekladacServer::vypisatZaznamiUtriedene(string nazovTab, int stlpec, str
     stringstream ss(pristup);
     while (ss.good()) {
         string substr;
-        getline(ss, substr, '|');
+        getline(ss, substr, ',');
         pravaVektor.push_back(substr);
     }
 
-    if (pravaVektor[3] == "1"){
+    if (pravaVektor[2] == "1"){
         string menaStlpcov = tabulka.getNazvyStlpcov(nazovTab);
         vector<string> menaVektor;
         stringstream ssmena(menaStlpcov);
@@ -262,7 +262,7 @@ string PrekladacServer::vypisatZaznamiUtriedene(string nazovTab, int stlpec, str
             menaVektor.push_back(substr);
         }
 
-        return tabulka.vypisUtriedenejTabulky(nazovTab,menaVektor[stlpec],10);
+        return tabulka.vypisUtriedenejTabulky(nazovTab,menaVektor[stlpec]);
     } else {
         return "Error nemas prava na vypisanie tabulky.";
     }

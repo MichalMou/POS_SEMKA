@@ -201,7 +201,7 @@ void Menu::vytvorTab() {
 }
 
 void Menu::vypisVytvoreneTab() {
-    string menoPP, vsetkyPrava, vymazTabMeno;
+    string menoPP, vsetkyPrava, vymazTabMeno, menoTab;
     int pravo = 99;
     int vstup = 99;
     do {
@@ -225,16 +225,21 @@ void Menu::vypisVytvoreneTab() {
 
 
         do {
+            vstup = 99;
             cout << "1. pridat niekomu pristupove prava k tabulke" << endl;
             cout << "2. vyber tabulku" << endl;
             cout << "3. zmaz tabulku" << endl;
             cout << "4. exit" << endl;
-            cin >> vstup;
 
-        } while( vstup != 1 && vstup != 2 && vstup != 3 && vstup != 4);
+            cin >> vstup;
+        } while (vstup != 1 && vstup != 2 && vstup != 3 && vstup != 4);
 
         switch(vstup) {
             case 1:
+
+                cout << "Zadaj meno tabulky: " << endl;
+                cin >> menoTab;
+
                 cout << "Zadaj login uzivatela komu chces pridat prava:" << endl;
                 cin >> menoPP;
 
@@ -245,9 +250,9 @@ void Menu::vypisVytvoreneTab() {
                     cin >> pravo;
 
                     if(pravo == 1){
-                        vsetkyPrava += "1,";
+                        vsetkyPrava += "1*";
                     } else if (pravo == 2) {
-                        vsetkyPrava += "0,";
+                        vsetkyPrava += "0*";
                     }
                 } while (pravo != 1 && pravo != 2);
                 pravo = 99;
@@ -259,9 +264,9 @@ void Menu::vypisVytvoreneTab() {
                     cin >> pravo;
 
                     if(pravo == 1){
-                        vsetkyPrava += "1,";
+                        vsetkyPrava += "1*";
                     } else if (pravo == 2) {
-                        vsetkyPrava += "0,";
+                        vsetkyPrava += "0*";
                     }
                 } while (pravo != 1 && pravo != 2);
                 pravo = 99;
@@ -273,9 +278,9 @@ void Menu::vypisVytvoreneTab() {
                     cin >> pravo;
 
                     if(pravo == 1){
-                        vsetkyPrava += "1,";
+                        vsetkyPrava += "1*";
                     } else if (pravo == 2) {
-                        vsetkyPrava += "0,";
+                        vsetkyPrava += "0*";
                     }
                 } while (pravo != 1 && pravo != 2);
                 pravo = 99;
@@ -292,7 +297,7 @@ void Menu::vypisVytvoreneTab() {
                         vsetkyPrava += "0";
                     }
                 } while (pravo != 1 && pravo != 2);
-                prekladacKlient->pridajPristupovePrava(menoPP, vsetkyPrava);
+                prekladacKlient->pridajPristupovePrava(menoPP, vsetkyPrava, menoTab);
                 break;
             case 2: {
                 string menoTab;
@@ -335,10 +340,8 @@ void Menu::vypisPristupneTab() {
         }
 
         for (int i = 0; i < tabulkyRiadky.size(); i++) {
-            cout << tabulkyRiadky[0] << endl;
+            cout << tabulkyRiadky[i] << endl;
         }
-
-
         do {
             cout << endl;
             cout << "1. vyber tabulku" << endl;
@@ -408,44 +411,25 @@ void Menu::UpravaTab() {
                     string hodnota;
                     cout << "Zadaj hodnotu pre " << menaStlpcov[i] << " typu " << typyStlpcov[i] << endl;
                     if (typyStlpcov[i] == "int") {
-                        bool spravnyTyp = false;
-                        do {
-                            cin >> hodnota;
-                            if (jeCislo(hodnota)) {
-                                cout << "Zadal si neplatnu hodnotu" << endl;
-                            } else {
-                                spravnyTyp = true;
-                            }
-                        } while (spravnyTyp);
+                        cin >> hodnota;
 
                     } else if (typyStlpcov[i] == "double") {
-                        bool spravnyTyp = false;
-                        do {
-                            cin >> hodnota;
-                            if (jeCislo(hodnota)) {
-                                cout << "Zadal si neplatnu hodnotu" << endl;
-                            } else {
-                                spravnyTyp = true;
-                            }
-                        } while (spravnyTyp);
+                        cin >> hodnota;
 
                     } else if (typyStlpcov[i] == "string") {
                         cin >> hodnota;
 
                     } else if (typyStlpcov[i] == "date") {
                         string den, mesiac, rok;
-                        do {
+
                             cout << "Zadaj den, cislom." << endl;
                             cin >> den;
-                        } while (jeCislo(den));
-                        do {
+
                             cout << "Zadaj mesiac, cislom." << endl;
                             cin >> mesiac;
-                        } while (jeCislo(mesiac));
-                        do {
                             cout << "Zadaj rok, cislo." << endl;
                             cin >> rok;
-                        } while (jeCislo(rok));
+
                         hodnota = den + "." + mesiac + "." + rok;
 
                     } else if (typyStlpcov[i] == "bool") {
@@ -463,11 +447,12 @@ void Menu::UpravaTab() {
                         }
                     }
 
-                    if (i > 0) {
-                        zaznam + ",";
+                    if (i > 1) {
+                        zaznam += ",";
                     }
                     zaznam += hodnota;
                 }
+                cout << "zaznam na zapis:" << zaznam << endl;
                 prekladacKlient->pridajZaznam(zaznam);
                 break;
             }
